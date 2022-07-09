@@ -2,14 +2,37 @@ mod args;
 mod proc;
 mod swaybar_object;
 
+use std::time::Duration;
+use swaybar_object::*;
+
 fn main() {
     let args_map = args::get_args();
+    if args_map.contains_key("help") {
+        args::print_usage();
+        return;
+    }
 
-    let mut net_obj = None;
+    let mut net_obj: Option<proc::NetInfo> = None;
+    let mut interval: Duration = Duration::from_secs(5);
     if args_map.contains_key("netdev") {
         net_obj = Some(proc::NetInfo::new(
             args_map.get("netdev").unwrap().to_owned(),
         ));
+    }
+    if args_map.contains_key("interval-sec") {
+        let seconds: Result<i64, _> = args_map.get("interval-sec").unwrap().parse();
+        if let Ok(seconds_value) = seconds {
+            if seconds_value > 0 {
+                interval = Duration::from_secs(seconds_value as u64);
+            } else {
+                println!(
+                    "WARNING: Invalid --interval-sec=\"{}\", defaulting to 5!",
+                    seconds_value
+                );
+            }
+        } else {
+            println!("WARNING: Failed to parse --interval-sec=?, defaulting to 5!");
+        }
     }
 
     println!(
@@ -18,27 +41,59 @@ fn main() {
             .expect("Should be able to serialize SwaybarHeader")
     );
     println!("[");
-    let mut array = swaybar_object::SwaybarArray::new();
-    array.push_object(swaybar_object::SwaybarObject::default());
-    {
-        let meminfo_string = proc::get_meminfo().expect("Should be able to get meminfo");
-        let meminfo_object = swaybar_object::SwaybarObject::from_string(meminfo_string);
-        array.push_object(meminfo_object);
-    }
-    {
-        let loadavg_string = proc::get_loadavg().expect("Should be able to get loadavg");
-        let loadavg_object = swaybar_object::SwaybarObject::from_string(loadavg_string);
-        array.push_object(loadavg_object);
-    }
 
-    if let Some(mut netinfo) = net_obj {
-        for _i in 0..10 {
-            netinfo.update().expect("netinfo.update() shouldn't fail");
-            let netinfo_string = netinfo.get_netstring();
-            array.push_object(swaybar_object::SwaybarObject::from_string(netinfo_string));
-            std::thread::sleep(std::time::Duration::from_secs(1));
+    loop {
+        let mut array = SwaybarArray::new();
+
+        // network traffic
+        if let Some(net) = &mut net_obj {
+            if let Err(e) = net.update() {
+                println!("ERROR: {:?}", e);
+                net_obj = None;
+            } else {
+                let netinfo_string = net.get_netstring();
+                let netinfo_parts: Vec<&str> = netinfo_string.split_whitespace().collect();
+
+                {
+                    let mut down_object = SwaybarObject::from_string(format!(
+                        "{} {}",
+                        netinfo_parts[0], netinfo_parts[1]
+                    ));
+                    down_object.color = Some("#ff8888ff".into());
+                    array.push_object(down_object);
+                }
+
+                {
+                    let mut up_object = SwaybarObject::from_string(format!(
+                        "{} {}",
+                        netinfo_parts[2], netinfo_parts[3]
+                    ));
+                    up_object.color = Some("#88ff88ff".into());
+                    array.push_object(up_object);
+                }
+            }
         }
-    }
 
-    println!("{}", array);
+        // meminfo
+        {
+            let meminfo_string = proc::get_meminfo().unwrap_or("MEMINFO ERROR".into());
+            let meminfo_obj = SwaybarObject::from_string(meminfo_string);
+            array.push_object(meminfo_obj);
+        }
+
+        // loadavg
+        {
+            let loadavg_string = proc::get_loadavg().unwrap_or("LOADAVG ERROR".into());
+            let loadavg_obj = SwaybarObject::from_string(loadavg_string);
+            array.push_object(loadavg_obj);
+        }
+
+        // time
+        {
+            array.push_object(SwaybarObject::default());
+        }
+
+        println!("{}", array);
+        std::thread::sleep(interval);
+    }
 }
