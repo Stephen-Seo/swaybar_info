@@ -58,26 +58,26 @@ impl NetInfo {
     }
 
     pub fn get_netstring(&mut self) -> String {
-        let down_diff = self.down - self.prev_down;
+        let down_diff: f64 = (self.down - self.prev_down) as f64;
         self.prev_down = self.down;
-        let up_diff = self.up - self.prev_up;
+        let up_diff: f64 = (self.up - self.prev_up) as f64;
         self.prev_up = self.up;
 
         let mut output = String::new();
-        if down_diff > 1024 * 1024 {
-            output.push_str(&format!("{} MiB ", down_diff / 1024 / 1024));
-        } else if down_diff > 1024 {
-            output.push_str(&format!("{} KiB ", down_diff / 1024));
+        if down_diff > 1024.0 * 1024.0 {
+            output.push_str(&format!("{:.2} MiB ", down_diff / (1024.0 * 1024.0)));
+        } else if down_diff > 1024.0 {
+            output.push_str(&format!("{:.2} KiB ", down_diff / 1024.0));
         } else {
-            output.push_str(&format!("{} B ", down_diff));
+            output.push_str(&format!("{:.0} B ", down_diff));
         }
 
-        if up_diff > 1024 * 1024 {
-            output.push_str(&format!("{} MiB", up_diff / 1024 / 1024));
-        } else if up_diff > 1024 {
-            output.push_str(&format!("{} KiB", up_diff / 1024));
+        if up_diff > 1024.0 * 1024.0 {
+            output.push_str(&format!("{:.2} MiB", up_diff / (1024.0 * 1024.0)));
+        } else if up_diff > 1024.0 {
+            output.push_str(&format!("{:.2} KiB", up_diff / 1024.0));
         } else {
-            output.push_str(&format!("{} B", up_diff));
+            output.push_str(&format!("{:.0} B", up_diff));
         }
 
         output
