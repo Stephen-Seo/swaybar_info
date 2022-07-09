@@ -1,5 +1,10 @@
 # swaybar\_info
 
+## About
+
+swaybar\_info is a program to be utilized by swaybar that is used by the [Sway
+dynamic Wayland compositor](https://swaywm.org).
+
 ## Usage
 
     # build the "release" build of the program
