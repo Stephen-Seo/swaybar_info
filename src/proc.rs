@@ -51,6 +51,7 @@ impl std::error::Error for Error {
         match self {
             Error::IO(e) => e.source(),
             Error::ParseInt(e) => e.source(),
+            Error::Format(e) => e.source(),
             _ => None,
         }
     }
