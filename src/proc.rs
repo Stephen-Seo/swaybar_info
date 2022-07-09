@@ -65,3 +65,24 @@ pub fn get_meminfo() -> io::Result<String> {
         Ok(output)
     }
 }
+
+pub fn get_loadavg() -> io::Result<String> {
+    let mut loadavg_string = String::new();
+    {
+        let mut loadavg_file: File = File::open("/proc/loadavg")?;
+        loadavg_file.read_to_string(&mut loadavg_string)?;
+    }
+
+    let loadavg_parts: Vec<&str> = loadavg_string.split_whitespace().collect();
+    if loadavg_parts.len() < 3 {
+        return Err(io::Error::new(
+            io::ErrorKind::Other,
+            "loadavg: failed to parse",
+        ));
+    }
+
+    Ok(format!(
+        "{} {} {}",
+        loadavg_parts[0], loadavg_parts[1], loadavg_parts[2]
+    ))
+}
