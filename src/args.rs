@@ -22,5 +22,5 @@ pub fn print_usage() {
     println!("Usage:");
     println!("  --help\t\t\tPrints help");
     println!("  --netdev=<device_name>\tCheck network traffic on specified device");
-    println!("  --interval-sec=<seconds>\tOutput at intervals of <seconds>");
+    println!("  --interval-sec=<seconds>\tOutput at intervals of <seconds> (default 5)");
 }
