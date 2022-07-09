@@ -48,7 +48,7 @@ fn main() {
         // network traffic
         if let Some(net) = &mut net_obj {
             if let Err(e) = net.update() {
-                println!("ERROR: {:?}", e);
+                println!("{}", e);
                 net_obj = None;
             } else {
                 let netinfo_string = net.get_netstring();
@@ -76,14 +76,28 @@ fn main() {
 
         // meminfo
         {
-            let meminfo_string = proc::get_meminfo().unwrap_or("MEMINFO ERROR".into());
+            let meminfo_result = proc::get_meminfo();
+            let meminfo_string: String;
+            if let Err(e) = meminfo_result {
+                println!("{}", e);
+                meminfo_string = String::from("MEMINFO ERROR");
+            } else {
+                meminfo_string = meminfo_result.unwrap();
+            }
             let meminfo_obj = SwaybarObject::from_string(meminfo_string);
             array.push_object(meminfo_obj);
         }
 
         // loadavg
         {
-            let loadavg_string = proc::get_loadavg().unwrap_or("LOADAVG ERROR".into());
+            let loadavg_result = proc::get_loadavg();
+            let loadavg_string: String;
+            if let Err(e) = loadavg_result {
+                println!("{}", e);
+                loadavg_string = String::from("LOADAVG ERROR");
+            } else {
+                loadavg_string = loadavg_result.unwrap();
+            }
             let loadavg_obj = SwaybarObject::from_string(loadavg_string);
             array.push_object(loadavg_obj);
         }

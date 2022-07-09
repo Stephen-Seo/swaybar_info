@@ -2,6 +2,51 @@ use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 
+#[derive(Debug)]
+pub enum Error {
+    IOError(std::io::Error),
+    ParseIntError(std::num::ParseIntError),
+    GenericError(String),
+}
+
+impl From<std::io::Error> for Error {
+    fn from(io_error: std::io::Error) -> Self {
+        Self::IOError(io_error)
+    }
+}
+
+impl From<std::num::ParseIntError> for Error {
+    fn from(parse_error: std::num::ParseIntError) -> Self {
+        Self::ParseIntError(parse_error)
+    }
+}
+
+impl From<String> for Error {
+    fn from(string: String) -> Self {
+        Self::GenericError(string)
+    }
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Error::IOError(e) => e.fmt(f),
+            Error::ParseIntError(e) => e.fmt(f),
+            Error::GenericError(s) => f.write_str(s),
+        }
+    }
+}
+
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Error::IOError(e) => e.source(),
+            Error::ParseIntError(e) => e.source(),
+            _ => None,
+        }
+    }
+}
+
 pub struct NetInfo {
     dev_name: String,
     down: u64,
@@ -21,7 +66,7 @@ impl NetInfo {
         }
     }
 
-    pub fn update(&mut self) -> io::Result<()> {
+    pub fn update(&mut self) -> Result<(), Error> {
         let mut netdev_string = String::new();
         {
             let mut netdev_file: File = File::open("/proc/net/dev")?;
@@ -39,19 +84,17 @@ impl NetInfo {
         if let Some(line) = dev_line {
             let entries: Vec<&str> = line.split_whitespace().collect();
             if entries.len() < 10 {
-                return Err(io::Error::new(io::ErrorKind::Other, format!("NetInfo::update: Failed to parse /proc/net/dev, \"{}\" device line is too short", self.dev_name)));
+                return Err(format!("NetInfo::update: Failed to parse /proc/net/dev, \"{}\" device line is too short", self.dev_name).into());
             }
 
-            self.down = entries[1].parse().map_err(|_| io::Error::new(io::ErrorKind::Other, format!("NetInfo::update: Failed to parse recv bytes in /proc/net/dev for device \"{}\"", self.dev_name)))?;
-            self.up = entries[9].parse().map_err(|_| io::Error::new(io::ErrorKind::Other, format!("NetInfo::update: Failed to parse recv bytes in /proc/net/dev for device \"{}\"", self.dev_name)))?;
+            self.down = entries[1].parse()?;
+            self.up = entries[9].parse()?;
         } else {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                format!(
-                    "NetInfo::update: Failed to parse /proc/net/dev, can't find net device \"{}\"",
-                    self.dev_name
-                ),
-            ));
+            return Err(format!(
+                "NetInfo::update: Failed to parse /proc/net/dev, can't find net device \"{}\"",
+                self.dev_name
+            )
+            .into());
         }
 
         Ok(())
@@ -84,7 +127,7 @@ impl NetInfo {
     }
 }
 
-pub fn get_meminfo() -> io::Result<String> {
+pub fn get_meminfo() -> Result<String, Error> {
     let mut meminfo_string = String::new();
     {
         let mut meminfo: File = File::open("/proc/meminfo")?;
@@ -148,7 +191,7 @@ pub fn get_meminfo() -> io::Result<String> {
     }
 }
 
-pub fn get_loadavg() -> io::Result<String> {
+pub fn get_loadavg() -> Result<String, Error> {
     let mut loadavg_string = String::new();
     {
         let mut loadavg_file: File = File::open("/proc/loadavg")?;
@@ -157,10 +200,7 @@ pub fn get_loadavg() -> io::Result<String> {
 
     let loadavg_parts: Vec<&str> = loadavg_string.split_whitespace().collect();
     if loadavg_parts.len() < 3 {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            "loadavg: failed to parse",
-        ));
+        return Err("loadavg: failed to parse".to_owned().into());
     }
 
     Ok(format!(
