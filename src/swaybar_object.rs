@@ -4,6 +4,17 @@ use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct SwaybarHeader {
+    pub version: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub click_events: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cont_signal: Option<u16>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stop_signal: Option<u16>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct SwaybarObject {
     pub full_text: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -43,6 +54,17 @@ pub struct SwaybarObject {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SwaybarArray {
     objects: Vec<SwaybarObject>,
+}
+
+impl SwaybarHeader {
+    pub fn new() -> Self {
+        Self {
+            version: 1,
+            click_events: None,
+            cont_signal: None,
+            stop_signal: None,
+        }
+    }
 }
 
 impl SwaybarObject {
