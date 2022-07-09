@@ -89,6 +89,28 @@ impl SwaybarObject {
             markup: None,
         }
     }
+
+    pub fn from_string(string: String) -> Self {
+        Self {
+            full_text: string,
+            short_text: None,
+            color: None,
+            background: None,
+            border: None,
+            border_top: None,
+            border_bottom: None,
+            border_left: None,
+            border_right: None,
+            min_width: None,
+            align: None,
+            name: None,
+            instance: None,
+            urgent: None,
+            separator: None,
+            separator_block_width: None,
+            markup: None,
+        }
+    }
 }
 
 impl Default for SwaybarObject {
