@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::io;
+use std::io::Write;
 
 pub fn get_args() -> HashMap<String, String> {
     let mut map = HashMap::new();
@@ -19,8 +21,13 @@ pub fn get_args() -> HashMap<String, String> {
 }
 
 pub fn print_usage() {
-    println!("Usage:");
-    println!("  --help\t\t\tPrints help");
-    println!("  --netdev=<device_name>\tCheck network traffic on specified device");
-    println!("  --interval-sec=<seconds>\tOutput at intervals of <seconds> (default 5)");
+    let mut stderr_handle = io::stderr().lock();
+    stderr_handle.write_all(b"Usage:\n").ok();
+    stderr_handle.write_all(b"  --help\t\t\tPrints help\n").ok();
+    stderr_handle
+        .write_all(b"  --netdev=<device_name>\tCheck network traffic on specified device\n")
+        .ok();
+    stderr_handle
+        .write_all(b"  --interval-sec=<seconds>\tOutput at intervals of <seconds> (default 5)\n")
+        .ok();
 }

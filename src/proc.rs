@@ -1,38 +1,47 @@
+use std::fmt::Write;
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 
 #[derive(Debug)]
 pub enum Error {
-    IOError(std::io::Error),
-    ParseIntError(std::num::ParseIntError),
-    GenericError(String),
+    IO(std::io::Error),
+    ParseInt(std::num::ParseIntError),
+    Format(std::fmt::Error),
+    Generic(String),
 }
 
 impl From<std::io::Error> for Error {
     fn from(io_error: std::io::Error) -> Self {
-        Self::IOError(io_error)
+        Self::IO(io_error)
     }
 }
 
 impl From<std::num::ParseIntError> for Error {
     fn from(parse_error: std::num::ParseIntError) -> Self {
-        Self::ParseIntError(parse_error)
+        Self::ParseInt(parse_error)
+    }
+}
+
+impl From<std::fmt::Error> for Error {
+    fn from(fmt_error: std::fmt::Error) -> Self {
+        Self::Format(fmt_error)
     }
 }
 
 impl From<String> for Error {
     fn from(string: String) -> Self {
-        Self::GenericError(string)
+        Self::Generic(string)
     }
 }
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Error::IOError(e) => e.fmt(f),
-            Error::ParseIntError(e) => e.fmt(f),
-            Error::GenericError(s) => f.write_str(s),
+            Error::IO(e) => e.fmt(f),
+            Error::ParseInt(e) => e.fmt(f),
+            Error::Format(e) => e.fmt(f),
+            Error::Generic(s) => f.write_str(s),
         }
     }
 }
@@ -40,8 +49,8 @@ impl std::fmt::Display for Error {
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            Error::IOError(e) => e.source(),
-            Error::ParseIntError(e) => e.source(),
+            Error::IO(e) => e.source(),
+            Error::ParseInt(e) => e.source(),
             _ => None,
         }
     }
@@ -100,7 +109,7 @@ impl NetInfo {
         Ok(())
     }
 
-    pub fn get_netstring(&mut self) -> String {
+    pub fn get_netstring(&mut self) -> Result<String, Error> {
         let down_diff: f64 = (self.down - self.prev_down) as f64;
         self.prev_down = self.down;
         let up_diff: f64 = (self.up - self.prev_up) as f64;
@@ -108,22 +117,22 @@ impl NetInfo {
 
         let mut output = String::new();
         if down_diff > 1024.0 * 1024.0 {
-            output.push_str(&format!("{:.2} MiB ", down_diff / (1024.0 * 1024.0)));
+            write!(&mut output, "{:.2} MiB ", down_diff / (1024.0 * 1024.0))?;
         } else if down_diff > 1024.0 {
-            output.push_str(&format!("{:.2} KiB ", down_diff / 1024.0));
+            write!(&mut output, "{:.2} KiB ", down_diff / 1024.0)?;
         } else {
-            output.push_str(&format!("{:.0} B ", down_diff));
+            write!(&mut output, "{:.0} B ", down_diff)?;
         }
 
         if up_diff > 1024.0 * 1024.0 {
-            output.push_str(&format!("{:.2} MiB", up_diff / (1024.0 * 1024.0)));
+            write!(&mut output, "{:.2} MiB", up_diff / (1024.0 * 1024.0))?;
         } else if up_diff > 1024.0 {
-            output.push_str(&format!("{:.2} KiB", up_diff / 1024.0));
+            write!(&mut output, "{:.2} KiB", up_diff / 1024.0)?;
         } else {
-            output.push_str(&format!("{:.0} B", up_diff));
+            write!(&mut output, "{:.0} B", up_diff)?;
         }
 
-        output
+        Ok(output)
     }
 }
 
@@ -180,7 +189,7 @@ pub fn get_meminfo() -> Result<String, Error> {
             output.push_str("KiB / ");
         }
 
-        output.push_str(&format!("{} ", total));
+        write!(&mut output, "{} ", total)?;
         if is_total_mega {
             output.push_str("MiB");
         } else {

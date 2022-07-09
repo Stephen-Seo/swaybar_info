@@ -2,6 +2,7 @@ mod args;
 mod proc;
 mod swaybar_object;
 
+use std::io::{self, Write};
 use std::time::Duration;
 use swaybar_object::*;
 
@@ -25,13 +26,22 @@ fn main() {
             if seconds_value > 0 {
                 interval = Duration::from_secs(seconds_value as u64);
             } else {
-                println!(
-                    "WARNING: Invalid --interval-sec=\"{}\", defaulting to 5!",
-                    seconds_value
-                );
+                let mut stderr_handle = io::stderr().lock();
+                stderr_handle
+                    .write_all(
+                        format!(
+                            "WARNING: Invalid --interval-sec=\"{}\", defaulting to 5!\n",
+                            seconds_value
+                        )
+                        .as_bytes(),
+                    )
+                    .ok();
             }
         } else {
-            println!("WARNING: Failed to parse --interval-sec=?, defaulting to 5!");
+            let mut stderr_handle = io::stderr().lock();
+            stderr_handle
+                .write_all(b"WARNING: Failed to parse --interval-sec=?, defaulting to 5!\n")
+                .ok();
         }
     }
 
@@ -48,28 +58,35 @@ fn main() {
         // network traffic
         if let Some(net) = &mut net_obj {
             if let Err(e) = net.update() {
-                println!("{}", e);
+                let mut stderr_handle = io::stderr().lock();
+                stderr_handle.write_all(e.to_string().as_bytes()).ok();
                 net_obj = None;
             } else {
-                let netinfo_string = net.get_netstring();
-                let netinfo_parts: Vec<&str> = netinfo_string.split_whitespace().collect();
+                let netinfo_result = net.get_netstring();
+                if let Err(e) = netinfo_result {
+                    let mut stderr_handle = io::stderr().lock();
+                    stderr_handle.write_all(e.to_string().as_bytes()).ok();
+                } else {
+                    let netinfo_string = netinfo_result.unwrap();
+                    let netinfo_parts: Vec<&str> = netinfo_string.split_whitespace().collect();
 
-                {
-                    let mut down_object = SwaybarObject::from_string(format!(
-                        "{} {}",
-                        netinfo_parts[0], netinfo_parts[1]
-                    ));
-                    down_object.color = Some("#ff8888ff".into());
-                    array.push_object(down_object);
-                }
+                    {
+                        let mut down_object = SwaybarObject::from_string(format!(
+                            "{} {}",
+                            netinfo_parts[0], netinfo_parts[1]
+                        ));
+                        down_object.color = Some("#ff8888ff".into());
+                        array.push_object(down_object);
+                    }
 
-                {
-                    let mut up_object = SwaybarObject::from_string(format!(
-                        "{} {}",
-                        netinfo_parts[2], netinfo_parts[3]
-                    ));
-                    up_object.color = Some("#88ff88ff".into());
-                    array.push_object(up_object);
+                    {
+                        let mut up_object = SwaybarObject::from_string(format!(
+                            "{} {}",
+                            netinfo_parts[2], netinfo_parts[3]
+                        ));
+                        up_object.color = Some("#88ff88ff".into());
+                        array.push_object(up_object);
+                    }
                 }
             }
         }
@@ -79,7 +96,8 @@ fn main() {
             let meminfo_result = proc::get_meminfo();
             let meminfo_string: String;
             if let Err(e) = meminfo_result {
-                println!("{}", e);
+                let mut stderr_handle = io::stderr().lock();
+                stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
                 meminfo_string = String::from("MEMINFO ERROR");
             } else {
                 meminfo_string = meminfo_result.unwrap();
@@ -93,7 +111,8 @@ fn main() {
             let loadavg_result = proc::get_loadavg();
             let loadavg_string: String;
             if let Err(e) = loadavg_result {
-                println!("{}", e);
+                let mut stderr_handle = io::stderr().lock();
+                stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
                 loadavg_string = String::from("LOADAVG ERROR");
             } else {
                 loadavg_string = loadavg_result.unwrap();
