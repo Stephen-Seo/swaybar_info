@@ -91,7 +91,7 @@ pub fn get_meminfo() -> io::Result<String> {
         meminfo.read_to_string(&mut meminfo_string)?;
     }
 
-    let mut is_total_giga = false;
+    let mut is_total_mega = false;
     let mut total: u32 = 0;
     let mut available: u32 = 0;
     for line in meminfo_string.lines() {
@@ -115,31 +115,31 @@ pub fn get_meminfo() -> io::Result<String> {
     }
 
     let mut used = total - available;
-    let mut is_used_giga = false;
+    let mut is_used_mega = false;
 
     if total == 0 {
         Ok("0".into())
     } else {
         if total > 1024 {
             total /= 1024;
-            is_total_giga = true;
+            is_total_mega = true;
         }
 
         if used > 1024 {
             used /= 1024;
-            is_used_giga = true;
+            is_used_mega = true;
         }
 
         let mut output = format!("{} ", used);
-        if is_used_giga {
-            output.push_str("GiB / ");
+        if is_used_mega {
+            output.push_str("MiB / ");
         } else {
             output.push_str("KiB / ");
         }
 
         output.push_str(&format!("{} ", total));
-        if is_total_giga {
-            output.push_str("GiB");
+        if is_total_mega {
+            output.push_str("MiB");
         } else {
             output.push_str("KiB");
         }
