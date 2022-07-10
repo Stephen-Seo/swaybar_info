@@ -218,7 +218,6 @@ impl SwaybarArray {
         self.objects.is_empty()
     }
 
-    // TODO this is linear, and it probably is possible to improve this
     pub fn get_by_name(&self, name: &str) -> Option<&SwaybarObject> {
         if let Some(idx) = self.objects_idx_map.get(name) {
             return Some(&self.objects[*idx]);
@@ -227,7 +226,6 @@ impl SwaybarArray {
         None
     }
 
-    // TODO this is linear, and it probably is possible to improve this
     pub fn get_by_name_mut(&mut self, name: &str) -> Option<&mut SwaybarObject> {
         if let Some(idx) = self.objects_idx_map.get(name) {
             return Some(&mut self.objects[*idx]);
