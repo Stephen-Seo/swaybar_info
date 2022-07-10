@@ -162,33 +162,38 @@ pub fn get_meminfo() -> Result<String, Error> {
         }
     }
 
-    let mut used = total - available;
+    let mut used: f64 = (total - available) as f64;
     let mut is_used_mega = false;
 
     if total == 0 {
         Ok("0".into())
     } else {
-        if total > 1024 {
-            total /= 1024;
+        let mut total = total as f64;
+
+        if total > 1024.0 {
+            total /= 1024.0;
             is_total_mega = true;
         }
 
-        if used > 1024 {
-            used /= 1024;
+        if used > 1024.0 {
+            used /= 1024.0;
             is_used_mega = true;
         }
 
-        let mut output = format!("{} ", used);
+        let mut output: String;
         if is_used_mega {
+            output = format!("{:.2} ", used);
             output.push_str("MiB / ");
         } else {
+            output = format!("{:.0} ", used);
             output.push_str("KiB / ");
         }
 
-        write!(&mut output, "{} ", total)?;
         if is_total_mega {
+            write!(&mut output, "{:.2} ", total)?;
             output.push_str("MiB");
         } else {
+            write!(&mut output, "{:.0} ", total)?;
             output.push_str("KiB");
         }
 
