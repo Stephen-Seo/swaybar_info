@@ -16,7 +16,7 @@ pub fn get_args() -> HashMap<String, String> {
         } else if arg.starts_with("--interval-sec=") {
             let (_, back) = arg.split_at(15);
             map.insert("interval-sec".into(), back.into());
-        } else if arg.starts_with("--help") || arg.starts_with("-h") {
+        } else if arg == "--help" || arg == "-h" {
             map.insert("help".into(), "".into());
         } else {
             let mut stderr_handle = io::stderr().lock();
@@ -32,7 +32,9 @@ pub fn get_args() -> HashMap<String, String> {
 pub fn print_usage() {
     let mut stderr_handle = io::stderr().lock();
     stderr_handle.write_all(b"Usage:\n").ok();
-    stderr_handle.write_all(b"  --help\t\t\tPrints help\n").ok();
+    stderr_handle
+        .write_all(b"  -h | --help\t\t\tPrints help\n")
+        .ok();
     stderr_handle
         .write_all(b"  --netdev=<device_name>\tCheck network traffic on specified device\n")
         .ok();

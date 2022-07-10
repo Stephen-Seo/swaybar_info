@@ -73,62 +73,56 @@ fn main() {
         }
     };
 
+    let handle_net = |is_empty: bool,
+                      net: &mut proc::NetInfo,
+                      array: &mut SwaybarArray|
+     -> Result<(), proc::Error> {
+        net.update()?;
+        let netinfo_string = net.get_netstring()?;
+        let netinfo_parts: Vec<&str> = netinfo_string.split_whitespace().collect();
+
+        if is_empty {
+            {
+                let mut down_object = SwaybarObject::from_string(
+                    "net_down".to_owned(),
+                    format!("{} {}", netinfo_parts[0], netinfo_parts[1]),
+                );
+                down_object.color = Some("#ff8888ff".into());
+                array.push_object(down_object);
+            }
+
+            {
+                let mut up_object = SwaybarObject::from_string(
+                    "net_up".to_owned(),
+                    format!("{} {}", netinfo_parts[2], netinfo_parts[3]),
+                );
+                up_object.color = Some("#88ff88ff".into());
+                array.push_object(up_object);
+            }
+        } else {
+            if let Some(down_object) = array.get_by_name_mut("net_down") {
+                down_object
+                    .update_as_net_down(format!("{} {}", netinfo_parts[0], netinfo_parts[1]));
+            }
+
+            if let Some(up_object) = array.get_by_name_mut("net_up") {
+                up_object.update_as_net_up(format!("{} {}", netinfo_parts[2], netinfo_parts[3]));
+            }
+        }
+
+        Ok(())
+    };
+
     loop {
         let is_empty = array.is_empty();
 
         // network traffic
-        if let Some(net) = &mut net_obj {
-            if let Err(e) = net.update() {
+        if let Some(net) = net_obj.as_mut() {
+            if let Err(e) = handle_net(is_empty, net, &mut array) {
                 let mut stderr_handle = io::stderr().lock();
                 stderr_handle.write_all(e.to_string().as_bytes()).ok();
                 net_obj = None;
                 set_net_error(is_empty, &mut array);
-            } else {
-                let netinfo_result = net.get_netstring();
-                if let Err(e) = netinfo_result {
-                    {
-                        let mut stderr_handle = io::stderr().lock();
-                        stderr_handle.write_all(e.to_string().as_bytes()).ok();
-                    }
-                    set_net_error(is_empty, &mut array);
-                } else {
-                    let netinfo_string = netinfo_result.unwrap();
-                    let netinfo_parts: Vec<&str> = netinfo_string.split_whitespace().collect();
-
-                    if is_empty {
-                        {
-                            let mut down_object = SwaybarObject::from_string(
-                                "net_down".to_owned(),
-                                format!("{} {}", netinfo_parts[0], netinfo_parts[1]),
-                            );
-                            down_object.color = Some("#ff8888ff".into());
-                            array.push_object(down_object);
-                        }
-
-                        {
-                            let mut up_object = SwaybarObject::from_string(
-                                "net_up".to_owned(),
-                                format!("{} {}", netinfo_parts[2], netinfo_parts[3]),
-                            );
-                            up_object.color = Some("#88ff88ff".into());
-                            array.push_object(up_object);
-                        }
-                    } else {
-                        if let Some(down_object) = array.get_by_name_mut("net_down") {
-                            down_object.update_as_net_down(format!(
-                                "{} {}",
-                                netinfo_parts[0], netinfo_parts[1]
-                            ));
-                        }
-
-                        if let Some(up_object) = array.get_by_name_mut("net_up") {
-                            up_object.update_as_net_up(format!(
-                                "{} {}",
-                                netinfo_parts[2], netinfo_parts[3]
-                            ));
-                        }
-                    }
-                }
             }
         }
 
