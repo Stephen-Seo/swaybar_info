@@ -52,7 +52,7 @@ impl std::error::Error for Error {
             Error::IO(e) => e.source(),
             Error::ParseInt(e) => e.source(),
             Error::Format(e) => e.source(),
-            _ => None,
+            Error::Generic(_) => None,
         }
     }
 }
@@ -83,10 +83,10 @@ impl NetInfo {
             netdev_file.read_to_string(&mut netdev_string)?;
         }
 
-        let mut dev_line: Option<String> = None;
+        let mut dev_line: Option<&str> = None;
         for line in netdev_string.lines() {
             if line.starts_with(&self.dev_name) {
-                dev_line = Some(line.to_owned());
+                dev_line = Some(line);
                 break;
             }
         }
