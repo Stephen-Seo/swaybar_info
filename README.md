@@ -3,7 +3,7 @@
 ## About
 
 swaybar\_info is a program to be utilized by swaybar that is used by the [Sway
-dynamic Wayland compositor](https://swaywm.org).
+tiling Wayland compositor](https://swaywm.org).
 
 ## Usage
 
