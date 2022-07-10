@@ -55,10 +55,11 @@ fn main() {
     let mut array = SwaybarArray::new();
     let set_net_error = |is_empty: bool, array: &mut SwaybarArray| {
         if is_empty {
-            let down_obj = SwaybarObject::from_string("net_down".to_owned(), "Net ERROR".into());
+            let down_obj =
+                SwaybarObject::from_error_string("net_down".to_owned(), "Net ERROR".into());
             array.push_object(down_obj);
 
-            let up_obj = SwaybarObject::from_string("net_up".to_owned(), "Net ERROR".into());
+            let up_obj = SwaybarObject::from_error_string("net_up".to_owned(), "Net ERROR".into());
             array.push_object(up_obj);
         } else {
             let down_ref_opt = array.get_by_name_mut("net_down");
@@ -120,7 +121,7 @@ fn main() {
         if let Some(net) = net_obj.as_mut() {
             if let Err(e) = handle_net(is_empty, net, &mut array) {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle.write_all(e.to_string().as_bytes()).ok();
+                stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
                 net_obj = None;
                 set_net_error(is_empty, &mut array);
             }

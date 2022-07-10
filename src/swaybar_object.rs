@@ -117,6 +117,28 @@ impl SwaybarObject {
         }
     }
 
+    pub fn from_error_string(name: String, msg: String) -> Self {
+        Self {
+            full_text: msg,
+            short_text: None,
+            color: Some("#ff2222ff".into()),
+            background: None,
+            border: Some("#ffffffff".into()),
+            border_top: None,
+            border_bottom: None,
+            border_left: None,
+            border_right: None,
+            min_width: None,
+            align: None,
+            name: Some(name),
+            instance: None,
+            urgent: None,
+            separator: None,
+            separator_block_width: None,
+            markup: None,
+        }
+    }
+
     pub fn update_as_net_down(&mut self, metric: String) {
         self.full_text = metric;
         self.color = Some("#ff8888ff".to_owned());
