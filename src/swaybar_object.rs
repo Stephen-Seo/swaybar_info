@@ -1,4 +1,7 @@
-use std::fmt::Display;
+use std::{
+    fmt::Display,
+    ops::{Index, IndexMut},
+};
 
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -68,7 +71,7 @@ impl SwaybarHeader {
 }
 
 impl SwaybarObject {
-    pub fn new() -> Self {
+    pub fn new(name: String) -> Self {
         Self {
             full_text: String::new(),
             short_text: None,
@@ -81,7 +84,7 @@ impl SwaybarObject {
             border_right: None,
             min_width: None,
             align: None,
-            name: None,
+            name: Some(name),
             instance: None,
             urgent: None,
             separator: None,
@@ -90,7 +93,7 @@ impl SwaybarObject {
         }
     }
 
-    pub fn from_string(string: String) -> Self {
+    pub fn from_string(name: String, string: String) -> Self {
         Self {
             full_text: string,
             short_text: None,
@@ -103,13 +106,48 @@ impl SwaybarObject {
             border_right: None,
             min_width: None,
             align: None,
-            name: None,
+            name: Some(name),
             instance: None,
             urgent: None,
             separator: None,
             separator_block_width: None,
             markup: None,
         }
+    }
+
+    pub fn update_as_net_down(&mut self, metric: String) {
+        self.full_text = metric;
+        self.color = Some("#ff8888ff".to_owned());
+    }
+
+    pub fn update_as_net_up(&mut self, metric: String) {
+        self.full_text = metric;
+        self.color = Some("#88ff88ff".to_owned());
+    }
+
+    pub fn update_as_date(&mut self) {
+        let current_time: DateTime<Local> = Local::now();
+        let current_time = current_time.format("%F %r");
+        self.full_text = current_time.to_string();
+        self.color = None;
+    }
+
+    pub fn update_as_generic(&mut self, metric: String, color: Option<String>) {
+        self.full_text = metric;
+        self.color = color;
+    }
+
+    pub fn update_as_error(&mut self, msg: String) {
+        self.full_text = msg;
+        self.color = Some("#ff2222ff".to_owned());
+    }
+
+    pub fn set_name(&mut self, name: Option<String>) {
+        self.name = name;
+    }
+
+    pub fn get_name(&self) -> Option<&str> {
+        self.name.as_deref()
     }
 }
 
@@ -129,7 +167,7 @@ impl Default for SwaybarObject {
             border_right: None,
             min_width: None,
             align: None,
-            name: None,
+            name: Some("current_time".to_owned()),
             instance: None,
             urgent: None,
             separator: None,
@@ -148,6 +186,50 @@ impl SwaybarArray {
 
     pub fn push_object(&mut self, object: SwaybarObject) {
         self.objects.push(object);
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.objects.is_empty()
+    }
+
+    // TODO this is linear, and it probably is possible to improve this
+    pub fn get_by_name(&self, name: &str) -> Option<&SwaybarObject> {
+        for object in &self.objects {
+            if let Some(object_name) = object.get_name() {
+                if object_name == name {
+                    return Some(object);
+                }
+            }
+        }
+
+        None
+    }
+
+    // TODO this is linear, and it probably is possible to improve this
+    pub fn get_by_name_mut(&mut self, name: &str) -> Option<&mut SwaybarObject> {
+        for object in &mut self.objects {
+            if let Some(object_name) = object.get_name() {
+                if object_name == name {
+                    return Some(object);
+                }
+            }
+        }
+
+        None
+    }
+}
+
+impl Index<usize> for SwaybarArray {
+    type Output = SwaybarObject;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        self.objects.index(index)
+    }
+}
+
+impl IndexMut<usize> for SwaybarArray {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        self.objects.index_mut(index)
     }
 }
 

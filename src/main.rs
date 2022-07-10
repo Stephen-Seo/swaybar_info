@@ -52,8 +52,29 @@ fn main() {
     );
     println!("[");
 
+    let mut array = SwaybarArray::new();
+    let set_net_error = |is_empty: bool, array: &mut SwaybarArray| {
+        if is_empty {
+            let down_obj = SwaybarObject::from_string("net_down".to_owned(), "Net ERROR".into());
+            array.push_object(down_obj);
+
+            let up_obj = SwaybarObject::from_string("net_up".to_owned(), "Net ERROR".into());
+            array.push_object(up_obj);
+        } else {
+            let down_ref_opt = array.get_by_name_mut("net_down");
+            if let Some(down_ref) = down_ref_opt {
+                down_ref.update_as_error("Net ERROR".to_owned());
+            }
+
+            let up_ref_opt = array.get_by_name_mut("net_up");
+            if let Some(up_ref) = up_ref_opt {
+                up_ref.update_as_error("Net ERROR".to_owned());
+            }
+        }
+    };
+
     loop {
-        let mut array = SwaybarArray::new();
+        let is_empty = array.is_empty();
 
         // network traffic
         if let Some(net) = &mut net_obj {
@@ -61,31 +82,51 @@ fn main() {
                 let mut stderr_handle = io::stderr().lock();
                 stderr_handle.write_all(e.to_string().as_bytes()).ok();
                 net_obj = None;
+                set_net_error(is_empty, &mut array);
             } else {
                 let netinfo_result = net.get_netstring();
                 if let Err(e) = netinfo_result {
-                    let mut stderr_handle = io::stderr().lock();
-                    stderr_handle.write_all(e.to_string().as_bytes()).ok();
+                    {
+                        let mut stderr_handle = io::stderr().lock();
+                        stderr_handle.write_all(e.to_string().as_bytes()).ok();
+                    }
+                    set_net_error(is_empty, &mut array);
                 } else {
                     let netinfo_string = netinfo_result.unwrap();
                     let netinfo_parts: Vec<&str> = netinfo_string.split_whitespace().collect();
 
-                    {
-                        let mut down_object = SwaybarObject::from_string(format!(
-                            "{} {}",
-                            netinfo_parts[0], netinfo_parts[1]
-                        ));
-                        down_object.color = Some("#ff8888ff".into());
-                        array.push_object(down_object);
-                    }
+                    if is_empty {
+                        {
+                            let mut down_object = SwaybarObject::from_string(
+                                "net_down".to_owned(),
+                                format!("{} {}", netinfo_parts[0], netinfo_parts[1]),
+                            );
+                            down_object.color = Some("#ff8888ff".into());
+                            array.push_object(down_object);
+                        }
 
-                    {
-                        let mut up_object = SwaybarObject::from_string(format!(
-                            "{} {}",
-                            netinfo_parts[2], netinfo_parts[3]
-                        ));
-                        up_object.color = Some("#88ff88ff".into());
-                        array.push_object(up_object);
+                        {
+                            let mut up_object = SwaybarObject::from_string(
+                                "net_up".to_owned(),
+                                format!("{} {}", netinfo_parts[2], netinfo_parts[3]),
+                            );
+                            up_object.color = Some("#88ff88ff".into());
+                            array.push_object(up_object);
+                        }
+                    } else {
+                        if let Some(down_object) = array.get_by_name_mut("net_down") {
+                            down_object.update_as_net_down(format!(
+                                "{} {}",
+                                netinfo_parts[0], netinfo_parts[1]
+                            ));
+                        }
+
+                        if let Some(up_object) = array.get_by_name_mut("net_up") {
+                            up_object.update_as_net_up(format!(
+                                "{} {}",
+                                netinfo_parts[2], netinfo_parts[3]
+                            ));
+                        }
                     }
                 }
             }
@@ -101,8 +142,14 @@ fn main() {
             } else {
                 meminfo_result.unwrap()
             };
-            let meminfo_obj = SwaybarObject::from_string(meminfo_string);
-            array.push_object(meminfo_obj);
+            if is_empty {
+                let meminfo_obj = SwaybarObject::from_string("meminfo".to_owned(), meminfo_string);
+                array.push_object(meminfo_obj);
+            } else {
+                if let Some(meminfo_obj) = array.get_by_name_mut("meminfo") {
+                    meminfo_obj.update_as_generic(meminfo_string, None);
+                }
+            }
         }
 
         // loadavg
@@ -115,13 +162,21 @@ fn main() {
             } else {
                 loadavg_result.unwrap()
             };
-            let loadavg_obj = SwaybarObject::from_string(loadavg_string);
-            array.push_object(loadavg_obj);
+            if is_empty {
+                let loadavg_obj = SwaybarObject::from_string("loadavg".to_owned(), loadavg_string);
+                array.push_object(loadavg_obj);
+            } else {
+                if let Some(loadavg_obj) = array.get_by_name_mut("loadavg") {
+                    loadavg_obj.update_as_generic(loadavg_string, None);
+                }
+            }
         }
 
         // time
-        {
+        if is_empty {
             array.push_object(SwaybarObject::default());
+        } else if let Some(time_obj) = array.get_by_name_mut("current_time") {
+            time_obj.update_as_date();
         }
 
         println!("{}", array);
