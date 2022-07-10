@@ -1,6 +1,5 @@
 use std::fmt::Write;
 use std::fs::File;
-use std::io;
 use std::io::prelude::*;
 
 #[derive(Debug)]
@@ -153,17 +152,13 @@ pub fn get_meminfo() -> Result<String, Error> {
                 .split_whitespace()
                 .map(|s| s.to_owned())
                 .collect::<Vec<String>>();
-            total = line_parts[1]
-                .parse()
-                .map_err(|_| io::Error::new(io::ErrorKind::Other, "MemTotal: parse error"))?;
+            total = line_parts[1].parse()?;
         } else if line.starts_with("MemAvailable:") {
             let line_parts = line
                 .split_whitespace()
                 .map(|s| s.to_owned())
                 .collect::<Vec<String>>();
-            available = line_parts[1]
-                .parse()
-                .map_err(|_| io::Error::new(io::ErrorKind::Other, "MemAvailable: parse error"))?;
+            available = line_parts[1].parse()?;
         }
     }
 
