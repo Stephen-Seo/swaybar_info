@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     fmt::Display,
     ops::{Index, IndexMut},
 };
@@ -54,9 +55,10 @@ pub struct SwaybarObject {
     pub markup: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
 pub struct SwaybarArray {
     objects: Vec<SwaybarObject>,
+    objects_idx_map: HashMap<String, usize>,
 }
 
 impl SwaybarHeader {
@@ -181,11 +183,13 @@ impl SwaybarArray {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
+            objects_idx_map: HashMap::new(),
         }
     }
 
     pub fn push_object(&mut self, object: SwaybarObject) {
         self.objects.push(object);
+        self.refresh_map();
     }
 
     pub fn is_empty(&self) -> bool {
@@ -194,12 +198,8 @@ impl SwaybarArray {
 
     // TODO this is linear, and it probably is possible to improve this
     pub fn get_by_name(&self, name: &str) -> Option<&SwaybarObject> {
-        for object in &self.objects {
-            if let Some(object_name) = object.get_name() {
-                if object_name == name {
-                    return Some(object);
-                }
-            }
+        if let Some(idx) = self.objects_idx_map.get(name) {
+            return Some(&self.objects[*idx]);
         }
 
         None
@@ -207,15 +207,20 @@ impl SwaybarArray {
 
     // TODO this is linear, and it probably is possible to improve this
     pub fn get_by_name_mut(&mut self, name: &str) -> Option<&mut SwaybarObject> {
-        for object in &mut self.objects {
-            if let Some(object_name) = object.get_name() {
-                if object_name == name {
-                    return Some(object);
-                }
-            }
+        if let Some(idx) = self.objects_idx_map.get(name) {
+            return Some(&mut self.objects[*idx]);
         }
 
         None
+    }
+
+    fn refresh_map(&mut self) {
+        self.objects_idx_map.clear();
+        for (idx, object) in self.objects.iter().enumerate() {
+            if let Some(name) = object.get_name() {
+                self.objects_idx_map.insert(name.to_owned(), idx);
+            }
+        }
     }
 }
 

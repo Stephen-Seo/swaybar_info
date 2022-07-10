@@ -145,10 +145,8 @@ fn main() {
             if is_empty {
                 let meminfo_obj = SwaybarObject::from_string("meminfo".to_owned(), meminfo_string);
                 array.push_object(meminfo_obj);
-            } else {
-                if let Some(meminfo_obj) = array.get_by_name_mut("meminfo") {
-                    meminfo_obj.update_as_generic(meminfo_string, None);
-                }
+            } else if let Some(meminfo_obj) = array.get_by_name_mut("meminfo") {
+                meminfo_obj.update_as_generic(meminfo_string, None);
             }
         }
 
@@ -165,10 +163,8 @@ fn main() {
             if is_empty {
                 let loadavg_obj = SwaybarObject::from_string("loadavg".to_owned(), loadavg_string);
                 array.push_object(loadavg_obj);
-            } else {
-                if let Some(loadavg_obj) = array.get_by_name_mut("loadavg") {
-                    loadavg_obj.update_as_generic(loadavg_string, None);
-                }
+            } else if let Some(loadavg_obj) = array.get_by_name_mut("loadavg") {
+                loadavg_obj.update_as_generic(loadavg_string, None);
             }
         }
 
