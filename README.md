@@ -21,8 +21,8 @@ Put the following in your `~/.config/sway/config`:
         # cause the program to omit network traffic stats.
         status_command $HOME/.config/sway/swaybar_info --netdev=enp7s0
 
-        # One can use the "--regex-cmd=<cmd>,<args...>,<regex>" option like so:
-        status_command $HOME/.config/sway/swaybar_info --regex-cmd="acpi,-b,[0-9]+%.*"
+        # One can use the "--regex-cmd=<cmd>[SPLIT]<args...>[SPLIT]<regex>" option like so:
+        status_command $HOME/.config/sway/swaybar_info --regex-cmd="acpi[SPLIT]-b[SPLIT][0-9]+%.*"
         # This example gets battery info into the bar.
         # Note that the <args...> portion is optional.
     }

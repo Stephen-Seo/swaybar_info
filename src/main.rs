@@ -16,7 +16,7 @@ fn main() {
 
     let mut cmds: Vec<(&str, Vec<&str>, regex::Regex)> = Vec::new();
     for regex_cmd in &args_result.regex_cmds {
-        let mut split_strs = regex_cmd.split_terminator(',');
+        let mut split_strs = regex_cmd.split_terminator("[SPLIT]");
         let cmd: &str = split_strs.next().expect("Should have cmd in option");
         let mut args: Vec<&str> = Vec::new();
         let mut next: Option<&str>;
