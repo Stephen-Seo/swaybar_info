@@ -42,17 +42,19 @@ pub fn print_usage() {
     let mut stderr_handle = io::stderr().lock();
     stderr_handle.write_all(b"Usage:\n").ok();
     stderr_handle
-        .write_all(b"  -h | --help\t\t\t\tPrints help\n")
+        .write_all(b"  -h | --help\t\t\t\t\t\tPrints help\n")
         .ok();
     stderr_handle
-        .write_all(b"  --netdev=<device_name>\t\tCheck network traffic on specified device\n")
-        .ok();
-    stderr_handle
-        .write_all(b"  --interval-sec=<seconds>\t\tOutput at intervals of <seconds> (default 5)\n")
+        .write_all(b"  --netdev=<device_name>\t\t\t\tCheck network traffic on specified device\n")
         .ok();
     stderr_handle
         .write_all(
-            b"  --regex-cmd=<cmd>,<args...>,<regex>\tUse an output of a command as a metric\n",
+            b"  --interval-sec=<seconds>\t\t\t\tOutput at intervals of <seconds> (default 5)\n",
+        )
+        .ok();
+    stderr_handle
+        .write_all(
+            b"  --regex-cmd=<cmd>[SPLIT]<args...>[SPLIT]<regex>\tUse an output of a command as a metric\n",
         )
         .ok();
 }
