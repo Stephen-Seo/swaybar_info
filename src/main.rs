@@ -1,4 +1,5 @@
 mod args;
+mod external;
 mod proc;
 mod swaybar_object;
 
@@ -7,21 +8,47 @@ use std::time::Duration;
 use swaybar_object::*;
 
 fn main() {
-    let args_map = args::get_args();
-    if args_map.contains_key("help") {
+    let args_result = args::get_args();
+    if args_result.map.contains_key("help") {
         args::print_usage();
         return;
     }
 
+    let mut cmds: Vec<(&str, Vec<&str>, regex::Regex)> = Vec::new();
+    for regex_cmd in &args_result.regex_cmds {
+        let mut split_strs = regex_cmd.split_terminator(',');
+        let cmd: &str = split_strs.next().expect("Should have cmd in option");
+        let mut args: Vec<&str> = Vec::new();
+        let mut next: Option<&str>;
+        loop {
+            next = split_strs.next();
+            if let Some(str) = next {
+                args.push(str);
+            } else {
+                break;
+            }
+        }
+        if args.is_empty() {
+            panic!("Missing regex for --regex-cmd=<cmd>,<args...>,<regex>");
+        }
+
+        let regex_str: &str = args[args.len() - 1];
+        args.pop();
+
+        let regex = regex::Regex::new(regex_str).expect("Should be able to compile regex");
+
+        cmds.push((cmd, args, regex));
+    }
+
     let mut net_obj: Option<proc::NetInfo> = None;
     let mut interval: Duration = Duration::from_secs(5);
-    if args_map.contains_key("netdev") {
+    if args_result.map.contains_key("netdev") {
         net_obj = Some(proc::NetInfo::new(
-            args_map.get("netdev").unwrap().to_owned(),
+            args_result.map.get("netdev").unwrap().to_owned(),
         ));
     }
-    if args_map.contains_key("interval-sec") {
-        let seconds: Result<i64, _> = args_map.get("interval-sec").unwrap().parse();
+    if args_result.map.contains_key("interval-sec") {
+        let seconds: Result<i64, _> = args_result.map.get("interval-sec").unwrap().parse();
         if let Ok(seconds_value) = seconds {
             if seconds_value > 0 {
                 interval = Duration::from_secs(seconds_value as u64);
@@ -142,6 +169,38 @@ fn main() {
                 array.push_object(meminfo_obj);
             } else if let Some(meminfo_obj) = array.get_by_name_mut("meminfo") {
                 meminfo_obj.update_as_generic(meminfo_string, None);
+            }
+        }
+
+        // regex_cmds
+        {
+            for (idx, (cmd, args, regex)) in cmds.iter().enumerate() {
+                let cmd_result = external::get_cmd_output(cmd, args, regex);
+                if let Ok(cmd_string) = cmd_result {
+                    if is_empty {
+                        let cmd_obj =
+                            SwaybarObject::from_string(format!("regex_cmd_{}", idx), cmd_string);
+                        array.push_object(cmd_obj);
+                    } else if let Some(cmd_obj) =
+                        array.get_by_name_mut(&format!("regex_cmd_{}", idx))
+                    {
+                        cmd_obj.update_as_generic(cmd_string, None);
+                    }
+                } else if let Err(e) = cmd_result {
+                    let mut stderr_handle = io::stderr().lock();
+                    stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                    if is_empty {
+                        let cmd_obj = SwaybarObject::from_error_string(
+                            format!("regex_cmd_{}", idx),
+                            "REGEX_CMD ERROR".into(),
+                        );
+                        array.push_object(cmd_obj);
+                    } else if let Some(cmd_obj) =
+                        array.get_by_name_mut(&format!("regex_cmd_{}", idx))
+                    {
+                        cmd_obj.update_as_error("REGEX_CMD ERROR".into());
+                    }
+                }
             }
         }
 

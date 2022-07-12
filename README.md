@@ -20,10 +20,15 @@ Put the following in your `~/.config/sway/config`:
         # want to monitor. You can omit --netdev=<device>, but that will also
         # cause the program to omit network traffic stats.
         status_command $HOME/.config/sway/swaybar_info --netdev=enp7s0
+
+        # One can use the "--regex-cmd=<cmd>,<args...>,<regex>" option like so:
+        status_command $HOME/.config/sway/swaybar_info --regex-cmd="acpi,-b,[0-9]+%.*"
+        # This example gets battery info into the bar.
     }
 
 ## Dependencies
 
 Uses [`serde_json`](https://crates.io/crates/serde_json),
 [`serde`](https://crates.io/crates/serde),
-and [`chrono`](https://crates.io/crates/chrono).
+[`chrono`](https://crates.io/crates/chrono),
+and [`regex`](https://crates.io/crates/regex).
