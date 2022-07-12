@@ -24,6 +24,7 @@ Put the following in your `~/.config/sway/config`:
         # One can use the "--regex-cmd=<cmd>,<args...>,<regex>" option like so:
         status_command $HOME/.config/sway/swaybar_info --regex-cmd="acpi,-b,[0-9]+%.*"
         # This example gets battery info into the bar.
+        # Note that the <args...> portion is optional.
     }
 
 ## Dependencies
