@@ -56,7 +56,7 @@ pub fn print_usage() {
         .ok();
     stderr_handle
         .write_all(
-            b"  --acpi-builtin\t\t\t\tUse \"acpi -b\" built-in fetching (battery info, with color)\n",
+            b"  --acpi-builtin\t\t\t\t\tUse \"acpi -b\" built-in fetching (battery info, with color)\n",
         )
         .ok();
     stderr_handle

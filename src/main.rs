@@ -74,10 +74,8 @@ fn main() {
     }
 
     let mut batt_info: builtin::BattInfo = Default::default();
-    {
-        let mut temp_object = SwaybarObject::new("battinfo".to_owned());
-        batt_info.update(&mut temp_object).ok();
-    }
+    let batt_info_enabled: bool = args_result.map.contains_key("acpi-builtin");
+    let mut batt_info_error: bool = false;
 
     println!(
         "{}",
@@ -212,15 +210,20 @@ fn main() {
         }
 
         // batt_info
-        if !batt_info.is_error_state() {
+        if batt_info_enabled {
             if is_empty {
                 let mut new_object = SwaybarObject::new("battinfo".to_owned());
                 if batt_info.update(&mut new_object).is_ok() {
                     array.push_object(new_object);
+                } else {
+                    new_object.update_as_error("BATTINFO ERROR".to_owned());
+                    array.push_object(new_object);
+                    batt_info_error = true;
                 }
             } else if let Some(obj) = array.get_by_name_mut("battinfo") {
-                if batt_info.update(obj).is_err() {
+                if !batt_info_error && batt_info.update(obj).is_err() {
                     obj.update_as_error("BATTINFO ERROR".to_owned());
+                    batt_info_error = true;
                 }
             }
         }
