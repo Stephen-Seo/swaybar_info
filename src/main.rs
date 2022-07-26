@@ -213,17 +213,27 @@ fn main() {
         if batt_info_enabled {
             if is_empty {
                 let mut new_object = SwaybarObject::new("battinfo".to_owned());
-                if batt_info.update(&mut new_object).is_ok() {
+                let result = batt_info.update(&mut new_object);
+                if result.is_ok() {
                     array.push_object(new_object);
                 } else {
                     new_object.update_as_error("BATTINFO ERROR".to_owned());
                     array.push_object(new_object);
                     batt_info_error = true;
+                    let mut stderr_handle = io::stderr().lock();
+                    stderr_handle
+                        .write_all(format!("{}\n", result.unwrap_err()).as_bytes())
+                        .ok();
                 }
             } else if let Some(obj) = array.get_by_name_mut("battinfo") {
-                if !batt_info_error && batt_info.update(obj).is_err() {
-                    obj.update_as_error("BATTINFO ERROR".to_owned());
-                    batt_info_error = true;
+                if !batt_info_error {
+                    let result = batt_info.update(obj);
+                    if let Err(e) = result {
+                        obj.update_as_error("BATTINFO ERROR".to_owned());
+                        batt_info_error = true;
+                        let mut stderr_handle = io::stderr().lock();
+                        stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                    }
                 }
             }
         }
