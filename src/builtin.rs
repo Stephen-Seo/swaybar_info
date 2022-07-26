@@ -107,7 +107,7 @@ impl BattInfo {
             } else {
                 (255.0f32 * percentage * 2.0f32) as u8
             };
-            let color: String = format!("#{:x}{:x}00ff", red, green);
+            let color: String = format!("#{:02x}{:02x}00ff", red, green);
 
             object.update_as_generic(output_string, Some(color));
 
