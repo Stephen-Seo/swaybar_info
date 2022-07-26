@@ -22,6 +22,8 @@ pub fn get_args() -> ArgsResult {
         } else if arg.starts_with("--interval-sec=") {
             let (_, back) = arg.split_at(15);
             map.insert("interval-sec".into(), back.into());
+        } else if arg == "--acpi-builtin" {
+            map.insert("acpi-builtin".into(), String::new());
         } else if arg.starts_with("--regex-cmd=") {
             let (_, back) = arg.split_at(12);
             regex_cmds.push(back.to_owned());
@@ -50,6 +52,11 @@ pub fn print_usage() {
     stderr_handle
         .write_all(
             b"  --interval-sec=<seconds>\t\t\t\tOutput at intervals of <seconds> (default 5)\n",
+        )
+        .ok();
+    stderr_handle
+        .write_all(
+            b"  --acpi-builtin\t\t\t\tUse \"acpi -b\" built-in fetching (battery info, with color)\n",
         )
         .ok();
     stderr_handle

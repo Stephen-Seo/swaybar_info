@@ -1,4 +1,5 @@
 mod args;
+mod builtin;
 mod external;
 mod proc;
 mod swaybar_object;
@@ -70,6 +71,12 @@ fn main() {
                 .write_all(b"WARNING: Failed to parse --interval-sec=?, defaulting to 5!\n")
                 .ok();
         }
+    }
+
+    let mut batt_info: builtin::BattInfo = Default::default();
+    {
+        let mut temp_object = SwaybarObject::new("battinfo".to_owned());
+        batt_info.update(&mut temp_object).ok();
     }
 
     println!(
@@ -200,6 +207,20 @@ fn main() {
                     {
                         cmd_obj.update_as_error("REGEX_CMD ERROR".into());
                     }
+                }
+            }
+        }
+
+        // batt_info
+        if !batt_info.is_error_state() {
+            if is_empty {
+                let mut new_object = SwaybarObject::new("battinfo".to_owned());
+                if batt_info.update(&mut new_object).is_ok() {
+                    array.push_object(new_object);
+                }
+            } else if let Some(obj) = array.get_by_name_mut("battinfo") {
+                if batt_info.update(obj).is_err() {
+                    obj.update_as_error("BATTINFO ERROR".to_owned());
                 }
             }
         }
