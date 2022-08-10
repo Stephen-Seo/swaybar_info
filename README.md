@@ -16,6 +16,10 @@ tiling Wayland compositor](https://swaywm.org).
     # put the "release" build somewhere to be used by swaybar
     cp ./target/release/swaybar_info ~/.config/sway/
 
+    # Alternatively, get it from crates.io/
+    cargo install swaybar_info
+    # The `swaybar_info` binary should be placed in $HOME/.cargo/bin/
+
 Put the following in your `~/.config/sway/config`:
 
     bar {
