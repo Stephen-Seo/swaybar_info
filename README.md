@@ -1,5 +1,7 @@
 # swaybar\_info
 
+[![swaybar\_info badge](https://img.shields.io/crates/v/swaybar_info)](https://crates.io/crates/swaybar_info)
+
 ![swaybar\_info preview image](https://github.com/Stephen-Seo/swaybar_info/raw/master/pictures/swaybar_screenshot_00.png)
 
 ## About
