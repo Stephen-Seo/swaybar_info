@@ -16,12 +16,12 @@ tiling Wayland compositor](https://swaywm.org).
 ## Help Text
 
     Usage:
-      -h | --help Prints help
+      -h | --help                                      Prints help
       --netdev=<device_name>                           Check network traffic on specified device
       --interval-sec=<seconds>                         Output at intervals of <seconds> (default 5)
       --acpi-builtin                                   Use "acpi -b" built-in fetching (battery info, with color)
       --regex-cmd=<cmd>[SPLIT]<args...>[SPLIT]<regex>  Use an output of a command as a metric
-      --date-format=<date format string>               Set the format string for the date
+      --time-format=<date format string>               Set the format string for the date
 
 ## Usage
 
