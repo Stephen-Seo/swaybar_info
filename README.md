@@ -9,6 +9,10 @@
 swaybar\_info is a program to be utilized by swaybar that is used by the [Sway
 tiling Wayland compositor](https://swaywm.org).
 
+## Changes in What Version
+
+[See the Changelog.md for details.](https://github.com/Stephen-Seo/swaybar_info/blob/master/Changelog.md)
+
 ## Help Text
 
     Usage:
