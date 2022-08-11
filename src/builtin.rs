@@ -82,6 +82,7 @@ impl Default for BattInfo {
 }
 
 impl BattInfo {
+    #[allow(dead_code)]
     pub fn is_error_state(&self) -> bool {
         self.acpi_error
     }

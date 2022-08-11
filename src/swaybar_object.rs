@@ -166,6 +166,7 @@ impl SwaybarObject {
         self.color = Some("#ff2222ff".to_owned());
     }
 
+    #[allow(dead_code)]
     pub fn set_name(&mut self, name: Option<String>) {
         self.name = name;
     }
@@ -192,6 +193,7 @@ impl SwaybarArray {
         self.objects.is_empty()
     }
 
+    #[allow(dead_code)]
     pub fn get_by_name(&self, name: &str) -> Option<&SwaybarObject> {
         if let Some(idx) = self.objects_idx_map.get(name) {
             return Some(&self.objects[*idx]);
