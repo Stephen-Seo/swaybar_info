@@ -8,6 +8,8 @@ use std::io::{self, Write};
 use std::time::Duration;
 use swaybar_object::*;
 
+const DEFAULT_FMT_STRING: &str = "%F %r";
+
 fn main() {
     let args_result = args::get_args();
     if args_result.map.contains_key("help") {
@@ -76,6 +78,11 @@ fn main() {
     let mut batt_info: builtin::BattInfo = Default::default();
     let batt_info_enabled: bool = args_result.map.contains_key("acpi-builtin");
     let mut batt_info_error: bool = false;
+
+    let mut time_fmt_str = DEFAULT_FMT_STRING;
+    if let Some(s) = args_result.map.get("time-format") {
+        time_fmt_str = s;
+    }
 
     println!(
         "{}",
@@ -258,9 +265,11 @@ fn main() {
 
         // time
         if is_empty {
-            array.push_object(SwaybarObject::default());
+            let mut time_obj = SwaybarObject::new("current_time".to_owned());
+            time_obj.update_as_date(time_fmt_str);
+            array.push_object(time_obj);
         } else if let Some(time_obj) = array.get_by_name_mut("current_time") {
-            time_obj.update_as_date();
+            time_obj.update_as_date(time_fmt_str);
         }
 
         println!("{}", array);

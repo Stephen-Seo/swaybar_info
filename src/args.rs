@@ -27,6 +27,9 @@ pub fn get_args() -> ArgsResult {
         } else if arg.starts_with("--regex-cmd=") {
             let (_, back) = arg.split_at(12);
             regex_cmds.push(back.to_owned());
+        } else if arg.starts_with("--time-format=") {
+            let (_, back) = arg.split_at(14);
+            map.insert("time-format".into(), back.to_owned());
         } else if arg == "--help" || arg == "-h" {
             map.insert("help".into(), "".into());
         } else {
@@ -62,6 +65,11 @@ pub fn print_usage() {
     stderr_handle
         .write_all(
             b"  --regex-cmd=<cmd>[SPLIT]<args...>[SPLIT]<regex>\tUse an output of a command as a metric\n",
+        )
+        .ok();
+    stderr_handle
+        .write_all(
+            b"  --date-format=<date format string>\t\t\tSet the format string for the date\n",
         )
         .ok();
 }

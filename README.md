@@ -20,7 +20,8 @@ tiling Wayland compositor](https://swaywm.org).
     cargo install swaybar_info
     # The `swaybar_info` binary should be placed in $HOME/.cargo/bin/
 
-Put the following in your `~/.config/sway/config`:
+Put the following in your `~/.config/sway/config` (assuming the binary is at
+`$HOME/.config/sway/swaybar_info`):
 
     bar {
         position top
@@ -41,6 +42,10 @@ Put the following in your `~/.config/sway/config`:
         # This example gets battery info into the bar.
         # Multiple args should be separated with "[SPLIT]".
         # Note that the <args...> portion is optional.
+
+
+        # The following uses 24 hour time
+        #status_command $HOME/.config/sway/swaybar_info --time-format="%Y-%m-%d %R:%S"
     }
 
 ## Dependencies

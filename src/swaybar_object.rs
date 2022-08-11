@@ -149,9 +149,9 @@ impl SwaybarObject {
         self.color = Some("#88ff88ff".to_owned());
     }
 
-    pub fn update_as_date(&mut self) {
+    pub fn update_as_date(&mut self, format_str: &str) {
         let current_time: DateTime<Local> = Local::now();
-        let current_time = current_time.format("%F %r");
+        let current_time = current_time.format(format_str);
         self.full_text = current_time.to_string();
         self.color = None;
     }
@@ -172,32 +172,6 @@ impl SwaybarObject {
 
     pub fn get_name(&self) -> Option<&str> {
         self.name.as_deref()
-    }
-}
-
-impl Default for SwaybarObject {
-    fn default() -> Self {
-        let current_time: DateTime<Local> = Local::now();
-        let current_time = current_time.format("%F %r");
-        Self {
-            full_text: current_time.to_string(),
-            short_text: None,
-            color: None,
-            background: None,
-            border: Some("#ffffffff".into()),
-            border_top: None,
-            border_bottom: None,
-            border_left: None,
-            border_right: None,
-            min_width: None,
-            align: None,
-            name: Some("current_time".to_owned()),
-            instance: None,
-            urgent: None,
-            separator: None,
-            separator_block_width: None,
-            markup: None,
-        }
     }
 }
 
