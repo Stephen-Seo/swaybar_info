@@ -2,6 +2,10 @@
 
 ## Upcoming Changes
 
+## 0.1.2
+
+Fix README.md (erroneously used `--date-format` instead of `--time-format`).
+
 ## 0.1.1
 
 Implement setting the time format string with the `--time-format=<time format string>` arg.
