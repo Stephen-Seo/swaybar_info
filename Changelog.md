@@ -2,6 +2,10 @@
 
 ## Upcoming Changes
 
+## 0.1.3
+
+Fix failing to fetch netdev info when /proc/net/dev device starts with whitespace.
+
 ## 0.1.2
 
 Fix README.md (erroneously used `--date-format` instead of `--time-format`).
