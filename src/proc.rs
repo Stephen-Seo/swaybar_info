@@ -84,8 +84,9 @@ impl NetInfo {
 
         let mut dev_line: Option<&str> = None;
         for line in netdev_string.lines() {
-            if line.starts_with(&self.dev_name) {
-                dev_line = Some(line);
+            let trimmed_line = line.trim();
+            if trimmed_line.starts_with(&self.dev_name) {
+                dev_line = Some(trimmed_line);
                 break;
             }
         }
