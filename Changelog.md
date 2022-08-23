@@ -8,6 +8,8 @@ Implemented advanced usage of `--regex-cmd=...` such that output text and output
 text color can be specified with regex captures. The first capture is the output
 text and the second capture is its color.
 
+The README.md explains how to use this feature.
+
 ## 0.1.3
 
 Fix failing to fetch netdev info when /proc/net/dev device starts with whitespace.
