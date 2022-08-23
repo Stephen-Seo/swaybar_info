@@ -80,8 +80,7 @@ That sometimes becomes:
 Then this text can be parsed with a regex like:
 
     status_command $HOME/.config/sway/swaybar_info \
-    '--regex-cmd=$HOME/scripts/mpc/mpcCommand.sh[SPLIT]simple[SPLIT]^\(.\*?\)\(?:\(?:COLORSPLIT\)\([A-F0-9]{6}\)\)?$'
-
+    '--regex-cmd=$HOME/scripts/mpc/mpcCommand.sh[SPLIT]simple[SPLIT]^\(.\*?\)\(?:COLORSPLIT\([A-F0-9]{6}\)\)?$'
 
 Note that some characters like `*` or `(` had to be escaped because they are
 being passed verbatim to a shell.
