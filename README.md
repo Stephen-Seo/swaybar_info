@@ -85,6 +85,10 @@ Then this text can be parsed with a regex like:
 Note that some characters like `*` or `(` had to be escaped because they are
 being passed verbatim to a shell.
 
+If only one capture is used in the regex string, then that capture will be used
+for the output text, and the color will be left unspecified (usually defaulting
+to white).
+
 ## Dependencies
 
 Uses [`serde_json`](https://crates.io/crates/serde_json),
