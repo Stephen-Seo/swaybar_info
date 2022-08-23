@@ -188,15 +188,18 @@ fn main() {
         {
             for (idx, (cmd, args, regex)) in cmds.iter().enumerate() {
                 let cmd_result = external::get_cmd_output(cmd, args, regex);
-                if let Ok(cmd_string) = cmd_result {
+                if let Ok(cmd_struct) = cmd_result {
                     if is_empty {
-                        let cmd_obj =
-                            SwaybarObject::from_string(format!("regex_cmd_{}", idx), cmd_string);
+                        let mut cmd_obj = SwaybarObject::from_string(
+                            format!("regex_cmd_{}", idx),
+                            cmd_struct.matched,
+                        );
+                        cmd_obj.color = cmd_struct.color;
                         array.push_object(cmd_obj);
                     } else if let Some(cmd_obj) =
                         array.get_by_name_mut(&format!("regex_cmd_{}", idx))
                     {
-                        cmd_obj.update_as_generic(cmd_string, None);
+                        cmd_obj.update_as_generic(cmd_struct.matched, cmd_struct.color);
                     }
                 } else if let Err(e) = cmd_result {
                     let mut stderr_handle = io::stderr().lock();

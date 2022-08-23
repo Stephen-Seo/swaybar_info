@@ -62,6 +62,29 @@ Put the following in your `~/.config/sway/config` (assuming the binary is at
         #status_command $HOME/.config/sway/swaybar_info --time-format="%Y-%m-%d %R:%S"
     }
 
+## Advanced Usage of `--regex-cmd`
+
+If the regex provided to `swaybar_info` has two captures, the first capture will
+be used as the text to be displayed, and the second capture will be expected to
+be the color string (such as FFFFFF for white, or 44FF44 for a lighter green).
+
+For example, if the script invoked with `--regex-cmd` has output like the
+following:
+
+    MPD Title | MPD Album | playingCOLORSPLIT44FF44
+
+That sometimes becomes:
+
+    MPD is not running
+
+Then this text can be parsed with a regex like:
+
+    status_command $HOME/.config/sway/swaybar_info \
+    '--regex-cmd=$HOME/scripts/mpc/mpcCommand.sh[SPLIT]simple[SPLIT]^\(.\*?\)\(?:COLORSPLIT\)?\([A-F0-9]{6}\)?$'
+
+Note that some characters like `*` or `(` had to be escaped because they are
+being passed verbatim to a shell.
+
 ## Dependencies
 
 Uses [`serde_json`](https://crates.io/crates/serde_json),
