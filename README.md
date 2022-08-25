@@ -90,6 +90,9 @@ If only one capture is used in the regex string, then that capture will be used
 for the output text, and the color will be left unspecified (usually defaulting
 to white).
 
+For a reference of what kind of regex is supported,
+[see this page](https://docs.rs/regex/1.6.0/regex/index.html#syntax).
+
 ## Dependencies
 
 Uses [`serde_json`](https://crates.io/crates/serde_json),
