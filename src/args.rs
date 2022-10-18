@@ -19,6 +19,12 @@ pub fn get_args() -> ArgsResult {
         } else if arg.starts_with("--netdev=") {
             let (_, back) = arg.split_at(9);
             map.insert("netdev".into(), back.into());
+        } else if arg.starts_with("--netdev_width=") {
+            let (_, back) = arg.split_at(15);
+            map.insert("netdevwidth".into(), back.into());
+        } else if arg.starts_with("--netgraph_max_bytes=") {
+            let (_, back) = arg.split_at(21);
+            map.insert("netgraph".into(), back.into());
         } else if arg.starts_with("--interval-sec=") {
             let (_, back) = arg.split_at(15);
             map.insert("interval-sec".into(), back.into());
@@ -53,6 +59,12 @@ pub fn print_usage() {
         .write_all(b"  --netdev=<device_name>\t\t\t\tCheck network traffic on specified device\n")
         .ok();
     stderr_handle
+        .write_all(b"  --netdev_width=<width>\t\t\t\tSets the min-width of the netdev output (default 10)\n")
+        .ok();
+    stderr_handle
+        .write_all(b"  --netgraph_max_bytes=<bytes>\t\t\t\tEnable \"graph\" output when polling network traffic\n")
+        .ok();
+    stderr_handle
         .write_all(
             b"  --interval-sec=<seconds>\t\t\t\tOutput at intervals of <seconds> (default 5)\n",
         )
@@ -69,7 +81,7 @@ pub fn print_usage() {
         .ok();
     stderr_handle
         .write_all(
-            b"  --date-format=<date format string>\t\t\tSet the format string for the date\n",
+            b"  --time-format=<date format string>\t\t\tSet the format string for the date\n",
         )
         .ok();
 }

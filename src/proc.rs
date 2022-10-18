@@ -58,6 +58,7 @@ impl std::error::Error for Error {
 
 pub struct NetInfo {
     dev_name: String,
+    graph: String,
     down: u64,
     prev_down: u64,
     up: u64,
@@ -68,6 +69,7 @@ impl NetInfo {
     pub fn new(dev_name: String) -> Self {
         Self {
             dev_name,
+            graph: String::from("          "),
             down: 0,
             prev_down: 0,
             up: 0,
@@ -109,7 +111,7 @@ impl NetInfo {
         Ok(())
     }
 
-    pub fn get_netstring(&mut self) -> Result<String, Error> {
+    pub fn get_netstring(&mut self, graph_max: Option<f64>) -> Result<(String, String), Error> {
         let down_diff: f64 = (self.down - self.prev_down) as f64;
         self.prev_down = self.down;
         let up_diff: f64 = (self.up - self.prev_up) as f64;
@@ -132,7 +134,41 @@ impl NetInfo {
             write!(&mut output, "{:.0} B", up_diff)?;
         }
 
-        Ok(output)
+        if let Some(graph_max) = graph_max {
+            let diff_max = if down_diff > up_diff {
+                down_diff
+            } else {
+                up_diff
+            };
+            let graph_value: u8 = if diff_max > graph_max {
+                8
+            } else {
+                (diff_max / graph_max * 8.0f64) as u8
+            };
+            let mut first = true;
+            let mut new_graph_string = String::with_capacity(10);
+            for current_char in self.graph.chars() {
+                if first {
+                    first = false;
+                    continue;
+                }
+                new_graph_string.push(current_char);
+            }
+            match graph_value {
+                0 => new_graph_string.push(' '),
+                1 => new_graph_string.push('▁'),
+                2 => new_graph_string.push('▂'),
+                3 => new_graph_string.push('▃'),
+                4 => new_graph_string.push('▄'),
+                5 => new_graph_string.push('▅'),
+                6 => new_graph_string.push('▆'),
+                7 => new_graph_string.push('▇'),
+                _ => new_graph_string.push('█'),
+            }
+            self.graph = new_graph_string;
+        }
+
+        Ok((output, self.graph.clone()))
     }
 }
 

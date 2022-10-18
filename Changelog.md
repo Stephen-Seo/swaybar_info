@@ -2,6 +2,23 @@
 
 ## Upcoming Changes
 
+## 0.1.5
+
+Implemented `--netdev_width=<width>` which sets the minimum width of the netdev
+byte/KiB/MiB text displays.
+
+Implemented `--netgraph_max_bytes=<bytes>` which displays a graph in text using
+Unicode "Block Elements" symbols. The `<bytes>` argument determines the maximum
+amount of bytes that will determine which block-character is printed on the
+interval. The graph is always 10 characters wide, and the right side is the
+most-recent side. Note that this always checks against the maximum of either
+download or upload rates. For example, if `<bytes>` is set to 1024, and 128
+bytes were downloaded and 512 bytes were uploaded in an interval, the "Lower
+Half Block" Unicode symbol will be emitted (exactly half).
+
+SwaybarObject was changed to use an `Option<String>` instead of an `Option<u16>`
+for `min_width`.
+
 ## 0.1.4
 
 Implemented advanced usage of `--regex-cmd=...` such that output text and output

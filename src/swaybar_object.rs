@@ -38,7 +38,7 @@ pub struct SwaybarObject {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub border_right: Option<u16>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub min_width: Option<u16>,
+    pub min_width: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub align: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
