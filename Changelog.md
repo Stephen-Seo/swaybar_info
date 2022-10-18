@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+Minor refactoring of how the netgraph string is handled.
+
 ## 0.1.5
 
 Implemented `--netdev_width=<width>` which sets the minimum width of the netdev
