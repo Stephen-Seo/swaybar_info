@@ -160,16 +160,14 @@ fn main() {
 
     let handle_net = |is_empty: bool,
                       net: &mut proc::NetInfo,
-                      array: &mut SwaybarArray,
-                      graph_opt: &Option<f64>,
-                      width: &Option<u16>|
+                      array: &mut SwaybarArray|
      -> Result<(), proc::Error> {
         net.update()?;
-        let (netinfo_string, graph_string) = net.get_netstring(*graph_opt)?;
+        let (netinfo_string, graph_string) = net.get_netstring(net_graph_max)?;
         let netinfo_parts: Vec<&str> = netinfo_string.split_whitespace().collect();
 
         if is_empty {
-            if graph_opt.is_some() {
+            if net_graph_max.is_some() {
                 let mut graph_obj =
                     SwaybarObject::from_string("net_graph".to_owned(), graph_string);
                 graph_obj.color = Some("#ffff88".into());
@@ -177,7 +175,7 @@ fn main() {
             }
 
             let mut width_string: Option<String> = None;
-            if let Some(width) = *width {
+            if let Some(width) = net_width {
                 let mut string = String::with_capacity(width.into());
                 for _ in 0..width {
                     string.push('0');
@@ -207,7 +205,7 @@ fn main() {
                 array.push_object(up_object);
             }
         } else {
-            if graph_opt.is_some() {
+            if net_graph_max.is_some() {
                 if let Some(graph_obj) = array.get_by_name_mut("net_graph") {
                     graph_obj.full_text = graph_string;
                 }
@@ -231,7 +229,7 @@ fn main() {
 
         // network traffic
         if let Some(net) = net_obj.as_mut() {
-            if let Err(e) = handle_net(is_empty, net, &mut array, &net_graph_max, &net_width) {
+            if let Err(e) = handle_net(is_empty, net, &mut array) {
                 let mut stderr_handle = io::stderr().lock();
                 stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
                 net_obj = None;

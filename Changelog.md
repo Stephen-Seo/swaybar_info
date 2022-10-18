@@ -4,6 +4,8 @@
 
 Minor refactoring of how the netgraph string is handled.
 
+Refactoring of handling of Option types wrapping primitive values.
+
 ## 0.1.5
 
 Implemented `--netdev_width=<width>` which sets the minimum width of the netdev
