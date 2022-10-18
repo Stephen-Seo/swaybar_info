@@ -145,27 +145,19 @@ impl NetInfo {
             } else {
                 (diff_max / graph_max * 8.0f64) as u8
             };
-            let mut first = true;
-            let mut new_graph_string = String::with_capacity(10);
-            for current_char in self.graph.chars() {
-                if first {
-                    first = false;
-                    continue;
-                }
-                new_graph_string.push(current_char);
-            }
+
+            self.graph.remove(0);
             match graph_value {
-                0 => new_graph_string.push(' '),
-                1 => new_graph_string.push('▁'),
-                2 => new_graph_string.push('▂'),
-                3 => new_graph_string.push('▃'),
-                4 => new_graph_string.push('▄'),
-                5 => new_graph_string.push('▅'),
-                6 => new_graph_string.push('▆'),
-                7 => new_graph_string.push('▇'),
-                _ => new_graph_string.push('█'),
+                0 => self.graph.push(' '),
+                1 => self.graph.push('▁'),
+                2 => self.graph.push('▂'),
+                3 => self.graph.push('▃'),
+                4 => self.graph.push('▄'),
+                5 => self.graph.push('▅'),
+                6 => self.graph.push('▆'),
+                7 => self.graph.push('▇'),
+                _ => self.graph.push('█'),
             }
-            self.graph = new_graph_string;
         }
 
         Ok((output, self.graph.clone()))
