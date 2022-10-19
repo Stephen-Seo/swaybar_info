@@ -6,6 +6,9 @@ Minor refactoring of how the netgraph string is handled.
 
 Refactoring of handling of Option types wrapping primitive values.
 
+Round values when determining netgraph results instead of truncating to an
+integer.
+
 ## 0.1.5
 
 Implemented `--netdev_width=<width>` which sets the minimum width of the netdev

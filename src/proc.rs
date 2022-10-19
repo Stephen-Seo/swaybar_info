@@ -143,7 +143,7 @@ impl NetInfo {
             let graph_value: u8 = if diff_max > graph_max {
                 8
             } else {
-                (diff_max / graph_max * 8.0f64) as u8
+                (diff_max / graph_max * 8.0f64).round() as u8
             };
 
             self.graph.remove(0);
