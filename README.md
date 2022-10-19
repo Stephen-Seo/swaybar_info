@@ -95,6 +95,18 @@ to white).
 For a reference of what kind of regex is supported,
 [see this page](https://docs.rs/regex/1.6.0/regex/index.html#syntax).
 
+## Net graph
+
+The `--netgraph_max_bytes=<bytes>` arg enables a 10-character-wide text graph
+showing a history of network traffic. The algorithm checks the larger of bytes
+sent or received in an interval and compares it to `<bytes>`. If it is greater,
+then the graph character will be a "full block" character. If it is less, then
+the graph character will be something in between out of 9 possible characters (a
+space, and [8 unicode block
+characters](https://en.wikipedia.org/wiki/Block_Elements)). Thus, this outputs
+a history graph of network traffic. A sane value for `<bytes>` can be 1048576,
+which is 1 MiB.
+
 ## Dependencies
 
 Uses [`serde_json`](https://crates.io/crates/serde_json),
