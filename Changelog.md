@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+## 0.1.6
+
 Minor refactoring of how the netgraph string is handled.
 
 Refactoring of handling of Option types wrapping primitive values.
