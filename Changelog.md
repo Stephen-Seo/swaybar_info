@@ -2,6 +2,16 @@
 
 ## Upcoming Changes
 
+When swaybar\_info starts, it no longer displays the traffic amount leading up
+to the start of the program (it now starts at 0).
+
+Increase netdev traffic minimum text width to 11 (was 10).
+
+Updated README.md and help text based on new dynamic-netgraph-display feature.
+
+Impl. dynamic netgraph display (the netgraph will scale the graph based on the
+maximum traffic in an interval dynamically).
+
 ## 0.1.6
 
 Minor refactoring of how the netgraph string is handled.
