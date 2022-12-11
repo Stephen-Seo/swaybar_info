@@ -61,8 +61,7 @@ fn main() {
             let mut stderr_handle = io::stderr().lock();
             stderr_handle
                 .write_all(
-                    format!("WARNING: Invalid value passed to --netdev_width=..., ignoring...\n")
-                        .as_bytes(),
+                    "WARNING: Invalid value passed to --netdev_width=..., ignoring...\n".as_bytes(),
                 )
                 .ok();
         }
@@ -78,10 +77,8 @@ fn main() {
                 let mut stderr_handle = io::stderr().lock();
                 stderr_handle
                     .write_all(
-                        format!(
-                            "WARNING: Invalid value passed to --netgraph_max_bytes=..., ignoring...\n"
-                        )
-                        .as_bytes(),
+                        "WARNING: Invalid value passed to --netgraph_max_bytes=..., ignoring...\n"
+                            .as_bytes(),
                     )
                     .ok();
             }
