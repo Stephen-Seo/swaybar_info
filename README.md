@@ -17,14 +17,15 @@ tiling Wayland compositor](https://swaywm.org).
 ## Help Text
 
     Usage:
-      -h | --help                                       Prints help
-      --netdev=<device_name>                            Check network traffic on specified device
-      --netdev_width=<width>                            Sets the min-width of the netdev output (default 10)
-      --netgraph_max_bytes=<bytes>                      Enable "graph" output when polling network traffic
-      --interval-sec=<seconds>                          Output at intervals of <seconds> (default 5)
-      --acpi-builtin                                    Use "acpi -b" built-in fetching (battery info, with color)
-      --regex-cmd=<cmd>[SPLIT]<args...>[SPLIT]<regex>   Use an output of a command as a metric
-      --time-format=<date format string>                Set the format string for the date
+      -h | --help						Prints help
+      --netdev=<device_name>				Check network traffic on specified device
+      --netdev_width=<width>				Sets the min-width of the netdev output (default 10)
+      --netgraph_max_bytes=<bytes>				Enable "graph" output when polling network traffic
+                                  				  (Set to "dynamic" instead of a byte count for dynamic sizing)
+      --interval-sec=<seconds>				Output at intervals of <seconds> (default 5)
+      --acpi-builtin					Use "acpi -b" built-in fetching (battery info, with color)
+      --regex-cmd=<cmd>[SPLIT]<args...>[SPLIT]<regex>	Use an output of a command as a metric
+      --time-format=<date format string>			Set the format string for the date
 
 ## Usage
 
@@ -106,6 +107,10 @@ space, and [8 unicode block
 characters](https://en.wikipedia.org/wiki/Block_Elements)). Thus, this outputs
 a history graph of network traffic. A sane value for `<bytes>` can be 1048576,
 which is 1 MiB.
+
+Specify "dynamic" instead of a bytecount (such as
+`--netgraph_max_bytes=dynamic`) to have the graph dynamically resize based on
+the maximum amount of bytes transferred in an interval.
 
 ## Dependencies
 

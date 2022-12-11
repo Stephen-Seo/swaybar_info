@@ -65,6 +65,9 @@ pub fn print_usage() {
         .write_all(b"  --netgraph_max_bytes=<bytes>\t\t\t\tEnable \"graph\" output when polling network traffic\n")
         .ok();
     stderr_handle
+        .write_all(b"                              \t\t\t\t  (Set to \"dynamic\" instead of a byte count for dynamic sizing)\n")
+        .ok();
+    stderr_handle
         .write_all(
             b"  --interval-sec=<seconds>\t\t\t\tOutput at intervals of <seconds> (default 5)\n",
         )
