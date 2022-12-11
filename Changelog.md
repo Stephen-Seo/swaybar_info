@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+## 0.1.7
+
 When swaybar\_info starts, it no longer displays the traffic amount leading up
 to the start of the program (it now starts at 0).
 

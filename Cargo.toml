@@ -1,6 +1,6 @@
 [package]
 name = "swaybar_info"
-version = "0.1.6"
+version = "0.1.7"
 edition = "2021"
 description = "Provides swaybar with info to be displayed"
 license = "MIT"
