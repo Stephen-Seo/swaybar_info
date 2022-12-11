@@ -59,10 +59,12 @@ impl std::error::Error for Error {
 pub struct NetInfo {
     dev_name: String,
     graph: String,
+    graph_history: [f64; 10],
     down: u64,
     prev_down: u64,
     up: u64,
     prev_up: u64,
+    first_iteration: bool,
 }
 
 impl NetInfo {
@@ -70,10 +72,12 @@ impl NetInfo {
         Self {
             dev_name,
             graph: String::from("          "),
+            graph_history: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             down: 0,
             prev_down: 0,
             up: 0,
             prev_up: 0,
+            first_iteration: true,
         }
     }
 
@@ -98,8 +102,13 @@ impl NetInfo {
                 return Err(format!("NetInfo::update: Failed to parse /proc/net/dev, \"{}\" device line is too short", self.dev_name).into());
             }
 
-            self.down = entries[1].parse()?;
-            self.up = entries[9].parse()?;
+            if !self.first_iteration {
+                self.down = entries[1].parse()?;
+                self.up = entries[9].parse()?;
+            } else {
+                self.prev_down = entries[1].parse()?;
+                self.prev_up = entries[9].parse()?;
+            }
         } else {
             return Err(format!(
                 "NetInfo::update: Failed to parse /proc/net/dev, can't find net device \"{}\"",
@@ -108,14 +117,26 @@ impl NetInfo {
             .into());
         }
 
+        self.first_iteration = false;
+
         Ok(())
     }
 
-    pub fn get_netstring(&mut self, graph_max: Option<f64>) -> Result<(String, String), Error> {
-        let down_diff: f64 = (self.down - self.prev_down) as f64;
-        self.prev_down = self.down;
-        let up_diff: f64 = (self.up - self.prev_up) as f64;
-        self.prev_up = self.up;
+    pub fn get_netstring(&mut self, graph_max_opt: Option<f64>) -> Result<(String, String), Error> {
+        let down_diff: f64 = if self.down > self.prev_down {
+            let value = (self.down - self.prev_down) as f64;
+            self.prev_down = self.down;
+            value
+        } else {
+            0.0
+        };
+        let up_diff: f64 = if self.up > self.prev_up {
+            let value = (self.up - self.prev_up) as f64;
+            self.prev_up = self.up;
+            value
+        } else {
+            0.0
+        };
 
         let mut output = String::new();
         if down_diff > 1024.0 * 1024.0 {
@@ -134,12 +155,13 @@ impl NetInfo {
             write!(&mut output, "{:.0} B", up_diff)?;
         }
 
-        if let Some(graph_max) = graph_max {
-            let diff_max = if down_diff > up_diff {
-                down_diff
-            } else {
-                up_diff
-            };
+        let diff_max = if down_diff > up_diff {
+            down_diff
+        } else {
+            up_diff
+        };
+
+        if let Some(graph_max) = graph_max_opt {
             let graph_value: u8 = if diff_max > graph_max {
                 8
             } else {
@@ -158,6 +180,36 @@ impl NetInfo {
                 7 => self.graph.push('▇'),
                 _ => self.graph.push('█'),
             }
+        } else {
+            self.graph_history.rotate_left(1);
+            self.graph_history[9] = diff_max;
+
+            let mut history_max: f64 = 0.0;
+            for value in &self.graph_history {
+                if history_max < *value {
+                    history_max = *value;
+                }
+            }
+
+            self.graph.clear();
+            if history_max == 0.0 {
+                self.graph = String::from("          ");
+            } else {
+                for value in &self.graph_history {
+                    match (8.0 * value / history_max).round() as u8 {
+                        0 => self.graph.push(' '),
+                        1 => self.graph.push('▁'),
+                        2 => self.graph.push('▂'),
+                        3 => self.graph.push('▃'),
+                        4 => self.graph.push('▄'),
+                        5 => self.graph.push('▅'),
+                        6 => self.graph.push('▆'),
+                        7 => self.graph.push('▇'),
+                        _ => self.graph.push('█'),
+                    }
+                }
+            }
+            assert_eq!(self.graph_history.len(), 10);
         }
 
         Ok((output, self.graph.clone()))

@@ -46,6 +46,7 @@ fn main() {
     let mut net_obj: Option<proc::NetInfo> = None;
     let mut net_width: Option<u16> = Some(10);
     let mut net_graph_max: Option<f64> = None;
+    let mut net_graph_is_dynamic: bool = false;
     let mut interval: Duration = Duration::from_secs(5);
     if args_result.map.contains_key("netdev") {
         net_obj = Some(proc::NetInfo::new(
@@ -67,19 +68,23 @@ fn main() {
         }
     }
     if args_result.map.contains_key("netgraph") {
-        let graph_max_result: Result<f64, _> = args_result.map.get("netgraph").unwrap().parse();
-        if let Ok(graph_max) = graph_max_result {
-            net_graph_max = Some(graph_max);
+        if args_result.map.get("netgraph").as_ref().unwrap() == &"dynamic" {
+            net_graph_is_dynamic = true;
         } else {
-            let mut stderr_handle = io::stderr().lock();
-            stderr_handle
-                .write_all(
-                    format!(
-                        "WARNING: Invalid value passed to --netgraph_max_bytes=..., ignoring...\n"
+            let graph_max_result: Result<f64, _> = args_result.map.get("netgraph").unwrap().parse();
+            if let Ok(graph_max) = graph_max_result {
+                net_graph_max = Some(graph_max);
+            } else {
+                let mut stderr_handle = io::stderr().lock();
+                stderr_handle
+                    .write_all(
+                        format!(
+                            "WARNING: Invalid value passed to --netgraph_max_bytes=..., ignoring...\n"
+                        )
+                        .as_bytes(),
                     )
-                    .as_bytes(),
-                )
-                .ok();
+                    .ok();
+            }
         }
     }
     if args_result.map.contains_key("interval-sec") {
@@ -126,7 +131,7 @@ fn main() {
     let mut array = SwaybarArray::new();
     let set_net_error = |is_empty: bool, array: &mut SwaybarArray, graph_max_opt: &Option<f64>| {
         if is_empty {
-            if graph_max_opt.is_some() {
+            if graph_max_opt.is_some() || net_graph_is_dynamic {
                 array.push_object(SwaybarObject::from_error_string(
                     "net_graph".to_owned(),
                     "net ERROR".into(),
@@ -140,7 +145,7 @@ fn main() {
             let up_obj = SwaybarObject::from_error_string("net_up".to_owned(), "Net ERROR".into());
             array.push_object(up_obj);
         } else {
-            if graph_max_opt.is_some() {
+            if graph_max_opt.is_some() || net_graph_is_dynamic {
                 if let Some(graph_ref) = array.get_by_name_mut("net_graph") {
                     graph_ref.update_as_error("Net ERROR".to_owned());
                 }
@@ -167,7 +172,7 @@ fn main() {
         let netinfo_parts: Vec<&str> = netinfo_string.split_whitespace().collect();
 
         if is_empty {
-            if net_graph_max.is_some() {
+            if net_graph_max.is_some() || net_graph_is_dynamic {
                 let mut graph_obj =
                     SwaybarObject::from_string("net_graph".to_owned(), graph_string);
                 graph_obj.color = Some("#ffff88".into());
@@ -205,7 +210,7 @@ fn main() {
                 array.push_object(up_object);
             }
         } else {
-            if net_graph_max.is_some() {
+            if net_graph_max.is_some() || net_graph_is_dynamic {
                 if let Some(graph_obj) = array.get_by_name_mut("net_graph") {
                     graph_obj.full_text = graph_string;
                 }
