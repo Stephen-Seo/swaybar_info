@@ -44,7 +44,7 @@ fn main() {
     }
 
     let mut net_obj: Option<proc::NetInfo> = None;
-    let mut net_width: Option<u16> = Some(10);
+    let mut net_width: Option<u16> = Some(11);
     let mut net_graph_max: Option<f64> = None;
     let mut net_graph_is_dynamic: bool = false;
     let mut interval: Duration = Duration::from_secs(5);

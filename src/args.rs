@@ -59,7 +59,7 @@ pub fn print_usage() {
         .write_all(b"  --netdev=<device_name>\t\t\t\tCheck network traffic on specified device\n")
         .ok();
     stderr_handle
-        .write_all(b"  --netdev_width=<width>\t\t\t\tSets the min-width of the netdev output (default 10)\n")
+        .write_all(b"  --netdev_width=<width>\t\t\t\tSets the min-width of the netdev output (default 11)\n")
         .ok();
     stderr_handle
         .write_all(b"  --netgraph_max_bytes=<bytes>\t\t\t\tEnable \"graph\" output when polling network traffic\n")
