@@ -113,6 +113,10 @@ Specify "dynamic" instead of a bytecount (such as
 `--netgraph_max_bytes=dynamic`) to have the graph dynamically resize based on
 the maximum amount of bytes transferred in an interval.
 
+When dynamic netgraph is used, swayba\_info can display the maximum value in the
+netgraph. Use the "--netgraph_dyn_display" option to enable this. (This only
+works when dynamic netgraph is enabled with "--netgraph_max_bytes=dynamic".)
+
 ## Dependencies
 
 Uses [`serde_json`](https://crates.io/crates/serde_json),
