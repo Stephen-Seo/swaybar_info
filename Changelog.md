@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+Impl. showing the maximum value in a dynamic netgraph.
+
 ## 0.1.7
 
 When swaybar\_info starts, it no longer displays the traffic amount leading up

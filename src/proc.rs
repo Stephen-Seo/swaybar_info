@@ -122,7 +122,11 @@ impl NetInfo {
         Ok(())
     }
 
-    pub fn get_netstring(&mut self, graph_max_opt: Option<f64>) -> Result<(String, String), Error> {
+    // Returns netinfo down/up, graph, and history_max (if dynamic is enabled)
+    pub fn get_netstring(
+        &mut self,
+        graph_max_opt: Option<f64>,
+    ) -> Result<(String, String, String), Error> {
         let down_diff: f64 = if self.down > self.prev_down {
             let value = (self.down - self.prev_down) as f64;
             self.prev_down = self.down;
@@ -161,6 +165,8 @@ impl NetInfo {
             up_diff
         };
 
+        let mut diff_max_string = String::new();
+
         if let Some(graph_max) = graph_max_opt {
             let graph_value: u8 = if diff_max > graph_max {
                 8
@@ -191,6 +197,18 @@ impl NetInfo {
                 }
             }
 
+            if history_max > 1024.0 * 1024.0 {
+                write!(
+                    &mut diff_max_string,
+                    "{:.2} MiB",
+                    history_max / (1024.0 * 1024.0)
+                )?;
+            } else if history_max > 1024.0 {
+                write!(&mut diff_max_string, "{:.2} KiB", history_max / 1024.0)?;
+            } else {
+                write!(&mut diff_max_string, "{:.0} B", history_max)?;
+            }
+
             self.graph.clear();
             if history_max == 0.0 {
                 self.graph = String::from("          ");
@@ -212,7 +230,7 @@ impl NetInfo {
             assert_eq!(self.graph_history.len(), 10);
         }
 
-        Ok((output, self.graph.clone()))
+        Ok((output, self.graph.clone(), diff_max_string))
     }
 }
 
