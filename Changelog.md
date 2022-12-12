@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+## 0.1.8
+
 Impl. showing the maximum value in a dynamic netgraph.
 
 ## 0.1.7

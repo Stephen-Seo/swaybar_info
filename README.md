@@ -17,15 +17,16 @@ tiling Wayland compositor](https://swaywm.org).
 ## Help Text
 
     Usage:
-      -h | --help						Prints help
-      --netdev=<device_name>				Check network traffic on specified device
-      --netdev_width=<width>				Sets the min-width of the netdev output (default 10)
-      --netgraph_max_bytes=<bytes>				Enable "graph" output when polling network traffic
-                                  				  (Set to "dynamic" instead of a byte count for dynamic sizing)
-      --interval-sec=<seconds>				Output at intervals of <seconds> (default 5)
-      --acpi-builtin					Use "acpi -b" built-in fetching (battery info, with color)
-      --regex-cmd=<cmd>[SPLIT]<args...>[SPLIT]<regex>	Use an output of a command as a metric
-      --time-format=<date format string>			Set the format string for the date
+      -h | --help                                       Prints help
+      --netdev=<device_name>                            Check network traffic on specified device
+      --netdev_width=<width>                            Sets the min-width of the netdev output (default 11)
+      --netgraph_max_bytes=<bytes>                      Enable "graph" output when polling network traffic
+                                                          (Set to "dynamic" instead of a byte count for dynamic sizing)
+      --netgraph_dyn_display                            Enable showing the current maximum value in the graph
+      --interval-sec=<seconds>                          Output at intervals of <seconds> (default 5)
+      --acpi-builtin                                    Use "acpi -b" built-in fetching (battery info, with color)
+      --regex-cmd=<cmd>[SPLIT]<args...>[SPLIT]<regex>   Use an output of a command as a metric
+      --time-format=<date format string>                Set the format string for the date
 
 ## Usage
 

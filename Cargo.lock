@@ -141,7 +141,7 @@ dependencies = [
 
 [[package]]
 name = "swaybar_info"
-version = "0.1.7"
+version = "0.1.8"
 dependencies = [
  "chrono",
  "regex",
