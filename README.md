@@ -119,6 +119,9 @@ the netgraph. Use the `--netgraph_dyn_display` option to enable this. (This
 only works when dynamic netgraph is enabled with
 `--netgraph_max_bytes=dynamic`.)
 
+The size of the netgraph is 10 characters by default, but this can be changed by
+using `--netgraph_size=<size>`.
+
 ## Dependencies
 
 Uses [`serde_json`](https://crates.io/crates/serde_json),
