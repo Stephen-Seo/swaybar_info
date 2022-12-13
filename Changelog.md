@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+Impl. changing the size of the net-graph (default 10).
+
 ## 0.1.8
 
 Impl. showing the maximum value in a dynamic netgraph.

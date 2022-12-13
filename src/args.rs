@@ -73,7 +73,7 @@ pub fn print_usage() {
         .write_all(b"                              \t\t\t\t  (Set to \"dynamic\" instead of a byte count for dynamic sizing)\n")
         .ok();
     stderr_handle
-        .write_all(b"  --netgraph_size=<size>\t\t\t\tSet the number of characters displayed in the net-graph (size of graph)\n")
+        .write_all(b"  --netgraph_size=<size>\t\t\t\tSet the number of characters displayed in the net-graph (size of graph; default 10)\n")
         .ok();
     stderr_handle
         .write_all(b"  --netgraph_dyn_display\t\t\t\tEnable showing the current maximum value in the graph\n")
