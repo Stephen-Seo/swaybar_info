@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+## 0.1.9
+
 Impl. changing the size of the net-graph (default 10).
 
 ## 0.1.8
