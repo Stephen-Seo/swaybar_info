@@ -50,8 +50,33 @@ fn main() {
     let mut net_graph_show_dynamic_max: bool = false;
     let mut interval: Duration = Duration::from_secs(5);
     if args_result.map.contains_key("netdev") {
+        let mut net_graph_size: Option<usize> = None;
+        if let Some(size_str) = args_result.map.get("netgraph-size") {
+            if let Ok(size) = size_str.parse::<usize>() {
+                if size > 0 {
+                    net_graph_size = Some(size);
+                } else {
+                    let mut stderr_handle = io::stderr().lock();
+                    stderr_handle
+                        .write_all(
+                            "WARNING: Invalid value passed to --netgraph_size=..., ignoring...\n"
+                                .as_bytes(),
+                        )
+                        .ok();
+                }
+            } else {
+                let mut stderr_handle = io::stderr().lock();
+                stderr_handle
+                    .write_all(
+                        "WARNING: Invalid value passed to --netgraph_size=..., ignoring...\n"
+                            .as_bytes(),
+                    )
+                    .ok();
+            }
+        }
         net_obj = Some(proc::NetInfo::new(
             args_result.map.get("netdev").unwrap().to_owned(),
+            net_graph_size,
         ));
     }
     if args_result.map.contains_key("netdevwidth") {

@@ -27,6 +27,9 @@ pub fn get_args() -> ArgsResult {
             map.insert("netgraph".into(), back.into());
         } else if arg.starts_with("--netgraph_dyn_display") {
             map.insert("netgraph-dyndisplay".into(), String::new());
+        } else if arg.starts_with("--netgraph_size=") {
+            let (_, back) = arg.split_at(16);
+            map.insert("netgraph-size".into(), back.into());
         } else if arg.starts_with("--interval-sec=") {
             let (_, back) = arg.split_at(15);
             map.insert("interval-sec".into(), back.into());
@@ -68,6 +71,9 @@ pub fn print_usage() {
         .ok();
     stderr_handle
         .write_all(b"                              \t\t\t\t  (Set to \"dynamic\" instead of a byte count for dynamic sizing)\n")
+        .ok();
+    stderr_handle
+        .write_all(b"  --netgraph_size=<size>\t\t\t\tSet the number of characters displayed in the net-graph (size of graph)\n")
         .ok();
     stderr_handle
         .write_all(b"  --netgraph_dyn_display\t\t\t\tEnable showing the current maximum value in the graph\n")

@@ -1,6 +1,7 @@
-use std::fmt::Write;
+use std::fmt::Write as FMTWrite;
 use std::fs::File;
 use std::io::prelude::*;
+use std::io::Write as IOWrite;
 
 #[derive(Debug)]
 pub enum Error {
@@ -59,7 +60,7 @@ impl std::error::Error for Error {
 pub struct NetInfo {
     dev_name: String,
     graph: String,
-    graph_history: [f64; 10],
+    graph_history: Vec<f64>,
     down: u64,
     prev_down: u64,
     up: u64,
@@ -68,17 +69,39 @@ pub struct NetInfo {
 }
 
 impl NetInfo {
-    pub fn new(dev_name: String) -> Self {
-        Self {
+    pub fn new(dev_name: String, graph_size_opt: Option<usize>) -> Self {
+        let mut s = Self {
             dev_name,
-            graph: String::from("          "),
-            graph_history: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            graph: String::from(" "),
+            graph_history: Vec::new(),
             down: 0,
             prev_down: 0,
             up: 0,
             prev_up: 0,
             first_iteration: true,
+        };
+
+        if let Some(graph_size) = graph_size_opt {
+            if graph_size > 0 {
+                s.graph_history.resize(graph_size, 0.0);
+                s.graph = s.graph.repeat(graph_size);
+            } else {
+                let mut stderr_handle = std::io::stderr().lock();
+                stderr_handle
+                    .write_all(
+                        "WARNING: Invalid graph_size value passed to NetInfo, ignoring...\n"
+                            .as_bytes(),
+                    )
+                    .ok();
+                s.graph_history.resize(10, 0.0);
+                s.graph = s.graph.repeat(10);
+            }
+        } else {
+            s.graph_history.resize(10, 0.0);
+            s.graph = s.graph.repeat(10);
         }
+
+        s
     }
 
     pub fn update(&mut self) -> Result<(), Error> {
@@ -188,7 +211,10 @@ impl NetInfo {
             }
         } else {
             self.graph_history.rotate_left(1);
-            self.graph_history[9] = diff_max;
+            {
+                let end_idx = self.graph_history.len() - 1;
+                self.graph_history[end_idx] = diff_max;
+            }
 
             let mut history_max: f64 = 0.0;
             for value in &self.graph_history {
@@ -211,7 +237,7 @@ impl NetInfo {
 
             self.graph.clear();
             if history_max == 0.0 {
-                self.graph = String::from("          ");
+                self.graph = String::from(" ").repeat(self.graph_history.len());
             } else {
                 for value in &self.graph_history {
                     match (8.0 * value / history_max).round() as u8 {
@@ -227,7 +253,6 @@ impl NetInfo {
                     }
                 }
             }
-            assert_eq!(self.graph_history.len(), 10);
         }
 
         Ok((output, self.graph.clone(), diff_max_string))
