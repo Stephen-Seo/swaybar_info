@@ -2,6 +2,11 @@
 
 ## Upcoming Changes
 
+## 0.1.10
+
+Colorize the netgraph based on if download or upload is greater.  
+Download is red, upload is green, and same amount is yellow.
+
 ## 0.1.9
 
 Impl. changing the size of the net-graph (default 10).

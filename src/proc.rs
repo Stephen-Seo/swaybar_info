@@ -59,9 +59,9 @@ impl std::error::Error for Error {
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum GraphItemType {
-    DOWNLOAD,
-    UPLOAD,
-    BOTH,
+    Download,
+    Upload,
+    Both,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -106,7 +106,7 @@ impl NetInfo {
             graph: vec![GraphItem {
                 value: ' ',
                 num_value: 0.0,
-                value_type: GraphItemType::BOTH,
+                value_type: GraphItemType::Both,
             }],
             down: 0,
             prev_down: 0,
@@ -213,13 +213,13 @@ impl NetInfo {
             write!(&mut output, "{:.0} B", up_diff)?;
         }
 
-        let mut graph_type = GraphItemType::BOTH;
+        let mut graph_type = GraphItemType::Both;
         let diff_max = if down_diff > up_diff {
-            graph_type = GraphItemType::DOWNLOAD;
+            graph_type = GraphItemType::Download;
             down_diff
         } else {
             if down_diff < up_diff {
-                graph_type = GraphItemType::UPLOAD;
+                graph_type = GraphItemType::Upload;
             }
             up_diff
         };

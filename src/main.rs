@@ -288,32 +288,32 @@ fn main() {
                     if (net_graph_max.is_some() || net_graph_is_dynamic) && !graph_items.is_empty()
                     {
                         match graph_items[max_idx].get_value_type() {
-                            proc::GraphItemType::DOWNLOAD => {
+                            proc::GraphItemType::Download => {
                                 graph_obj.color = Some("#ff8888ff".into())
                             }
-                            proc::GraphItemType::UPLOAD => {
+                            proc::GraphItemType::Upload => {
                                 graph_obj.color = Some("#88ff88ff".into())
                             }
-                            proc::GraphItemType::BOTH => graph_obj.color = Some("#ffff88ff".into()),
+                            proc::GraphItemType::Both => graph_obj.color = Some("#ffff88ff".into()),
                         }
                     }
                 }
             }
 
             if net_graph_max.is_some() || net_graph_is_dynamic {
-                for i in 0..net_graph_size.unwrap() {
-                    let name = "net_graph".to_owned() + &i.to_string();
+                for (idx, item) in graph_items.iter().enumerate() {
+                    let name = "net_graph".to_owned() + &idx.to_string();
                     if let Some(graph_obj) = array.get_by_name_mut(&name) {
-                        match graph_items[i].get_value_type() {
-                            proc::GraphItemType::DOWNLOAD => {
+                        match item.get_value_type() {
+                            proc::GraphItemType::Download => {
                                 graph_obj.color = Some("#ff8888ff".into())
                             }
-                            proc::GraphItemType::UPLOAD => {
+                            proc::GraphItemType::Upload => {
                                 graph_obj.color = Some("#88ff88ff".into())
                             }
-                            proc::GraphItemType::BOTH => graph_obj.color = Some("#ffff88ff".into()),
+                            proc::GraphItemType::Both => graph_obj.color = Some("#ffff88ff".into()),
                         }
-                        graph_obj.full_text = graph_items[i].get_value().into();
+                        graph_obj.full_text = item.get_value().into();
                     }
                 }
             }
