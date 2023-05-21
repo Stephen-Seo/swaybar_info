@@ -4,6 +4,7 @@ mod external;
 mod proc;
 mod swaybar_object;
 
+use std::fmt::Write as FMTWrite;
 use std::io::{self, Write};
 use std::time::Duration;
 use swaybar_object::*;
@@ -287,19 +288,25 @@ fn main() {
                     for item in graph_items.iter() {
                         match item.get_value_type() {
                             proc::GraphItemType::Download => {
-                                text += &("<span color=\"#ff8888ff\">".to_owned()
-                                    + &item.get_value().to_string()
-                                    + "</span>");
+                                write!(
+                                    &mut text,
+                                    "<span color=\"#ff8888ff\">{}</span>",
+                                    item.get_value()
+                                )?;
                             }
                             proc::GraphItemType::Upload => {
-                                text += &("<span color=\"#88ff88ff\">".to_owned()
-                                    + &item.get_value().to_string()
-                                    + "</span>");
+                                write!(
+                                    &mut text,
+                                    "<span color=\"#88ff88ff\">{}</span>",
+                                    item.get_value()
+                                )?;
                             }
                             proc::GraphItemType::Both => {
-                                text += &("<span color=\"#ffff88ff\">".to_owned()
-                                    + &item.get_value().to_string()
-                                    + "</span>");
+                                write!(
+                                    &mut text,
+                                    "<span color=\"#ffff88ff\">{}</span>",
+                                    item.get_value()
+                                )?;
                             }
                         }
                     }

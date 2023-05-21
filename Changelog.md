@@ -2,6 +2,10 @@
 
 ## Upcoming Changes
 
+## 0.1.12
+
+Some refactoring of the code related to colorizing the netgraph.
+
 ## 0.1.11
 
 Use pango markup to colorize the netgraph, making it look cleaner.

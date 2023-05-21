@@ -180,7 +180,7 @@ impl NetInfo {
     pub fn get_netstring(
         &mut self,
         graph_max_opt: Option<f64>,
-    ) -> Result<(String, Vec<GraphItem>, usize, String), Error> {
+    ) -> Result<(String, &Vec<GraphItem>, usize, String), Error> {
         let down_diff: f64 = if self.down > self.prev_down {
             let value = (self.down - self.prev_down) as f64;
             self.prev_down = self.down;
@@ -333,7 +333,7 @@ impl NetInfo {
             }
         }
 
-        Ok((output, self.graph.clone(), history_max_idx, diff_max_string))
+        Ok((output, &self.graph, history_max_idx, diff_max_string))
     }
 }
 
