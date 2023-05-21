@@ -2,6 +2,10 @@
 
 ## Upcoming Changes
 
+## 0.1.11
+
+Use pango markup to colorize the netgraph, making it look cleaner.
+
 ## 0.1.10
 
 Colorize the netgraph based on if download or upload is greater.  

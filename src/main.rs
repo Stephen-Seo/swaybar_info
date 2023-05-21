@@ -224,31 +224,12 @@ fn main() {
             }
 
             if net_graph_max.is_some() || net_graph_is_dynamic {
-                for i in 0..net_graph_size.unwrap() {
-                    let mut graph_obj = SwaybarObject::from_string(
-                        "net_graph".to_owned() + &i.to_string(),
-                        " ".to_owned(),
-                    );
-                    if i == 0 {
-                        graph_obj.border_left = Some(1);
-                    } else {
-                        graph_obj.border_left = Some(0);
-                    }
-
-                    if i == net_graph_size.unwrap() - 1 {
-                        graph_obj.border_right = Some(1);
-                        graph_obj.separator_block_width = Some(12);
-                    } else {
-                        graph_obj.border_right = Some(0);
-                        graph_obj.separator_block_width = Some(0);
-                    }
-
-                    graph_obj.border_top = Some(1);
-                    graph_obj.border_bottom = Some(1);
-                    graph_obj.color = Some("#ffff88".into());
-                    graph_obj.separator = Some(false);
-                    array.push_object(graph_obj);
-                }
+                let mut graph_obj = SwaybarObject::from_string(
+                    "net_graph".to_owned(),
+                    " ".to_owned().repeat(net_graph_size.unwrap()),
+                );
+                graph_obj.markup = Some("pango".to_owned());
+                array.push_object(graph_obj);
             }
 
             let mut width_string: Option<String> = None;
@@ -301,20 +282,28 @@ fn main() {
             }
 
             if net_graph_max.is_some() || net_graph_is_dynamic {
-                for (idx, item) in graph_items.iter().enumerate() {
-                    let name = "net_graph".to_owned() + &idx.to_string();
-                    if let Some(graph_obj) = array.get_by_name_mut(&name) {
+                if let Some(graph_obj) = array.get_by_name_mut("net_graph") {
+                    let mut text = String::new();
+                    for item in graph_items.iter() {
                         match item.get_value_type() {
                             proc::GraphItemType::Download => {
-                                graph_obj.color = Some("#ff8888ff".into())
+                                text += &("<span color=\"#ff8888ff\">".to_owned()
+                                    + &item.get_value().to_string()
+                                    + "</span>");
                             }
                             proc::GraphItemType::Upload => {
-                                graph_obj.color = Some("#88ff88ff".into())
+                                text += &("<span color=\"#88ff88ff\">".to_owned()
+                                    + &item.get_value().to_string()
+                                    + "</span>");
                             }
-                            proc::GraphItemType::Both => graph_obj.color = Some("#ffff88ff".into()),
+                            proc::GraphItemType::Both => {
+                                text += &("<span color=\"#ffff88ff\">".to_owned()
+                                    + &item.get_value().to_string()
+                                    + "</span>");
+                            }
                         }
-                        graph_obj.full_text = item.get_value().into();
                     }
+                    graph_obj.full_text = text;
                 }
             }
 
