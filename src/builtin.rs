@@ -127,7 +127,14 @@ impl BattInfo {
         cmd_builder.arg("-b");
         let output = cmd_builder.output()?;
         let string = String::from_utf8(output.stdout)?;
-        let regex_captures_result = self.regex.captures(&string);
+        let mut last_line = "unknown".to_owned();
+        for line in string.lines() {
+            if !line.contains("unavailable") {
+                last_line = line.to_owned();
+                break;
+            }
+        }
+        let regex_captures_result = self.regex.captures(&last_line);
         if regex_captures_result.is_none() {
             self.acpi_error = true;
             return Err(Error::Generic("battinfo: regex captured nothing".into()));
