@@ -2,6 +2,11 @@
 
 ## Upcoming Changes
 
+## 0.1.13
+
+Fix to workaround when `acpi` output contains a `0%` line with "unavailable".
+When such a line is encountered, it is ignored.
+
 ## 0.1.12
 
 Some refactoring of the code related to colorizing the netgraph.
