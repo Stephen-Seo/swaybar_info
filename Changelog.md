@@ -2,6 +2,10 @@
 
 ## Upcoming Changes
 
+## 0.1.14
+
+Bumped dependency `regex` to version `1.9`.
+
 ## 0.1.13
 
 Fix to workaround when `acpi` output contains a `0%` line with "unavailable".
