@@ -2,6 +2,10 @@
 
 ## Upcoming Changes
 
+## 0.1.15
+
+Update dependencies (`cargo update` and bump `regex` version).
+
 ## 0.1.14
 
 Bumped dependency `regex` to version `1.9`.
