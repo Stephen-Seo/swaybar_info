@@ -2,6 +2,10 @@
 
 ## Upcoming Changes
 
+## 0.1.17
+
+Update dependencies (`cargo update`). Update `regex` dependency.
+
 ## 0.1.16
 
 Update dependencies (`cargo update`).
