@@ -96,7 +96,7 @@ for the output text, and the color will be left unspecified (usually defaulting
 to white).
 
 For a reference of what kind of regex is supported,
-[see this page](https://docs.rs/regex/1.9.1/regex/index.html#syntax).
+[see this page](https://docs.rs/regex/1.11.1/regex/index.html#syntax).
 
 ## Net graph
 
