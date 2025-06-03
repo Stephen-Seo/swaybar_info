@@ -2,6 +2,10 @@
 
 ## Upcoming Changes
 
+## 0.1.18
+
+Update dependencies (`cargo update`). Update `chrono` dependency.
+
 ## 0.1.17
 
 Update dependencies (`cargo update`). Update `regex` dependency.
