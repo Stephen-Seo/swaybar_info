@@ -2,6 +2,10 @@
 
 ## Upcoming Changes
 
+## 0.1.19
+
+`cargo update` (updating dependencies).
+
 ## 0.1.18
 
 Update dependencies (`cargo update`). Update `chrono` dependency.
