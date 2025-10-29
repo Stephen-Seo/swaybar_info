@@ -106,6 +106,14 @@ wifi-dongle), you can specify multiple network devices to "--netdev=...".
 The first network device that does not error out when fetching info will be
 used.
 
+For example, if you have a ethernet device like "eth0", and a wireless dongle
+that shows up as "wlan0" but isn't connected all the time, then you can use:
+
+    --netdev=wlan0,eth0
+
+This will make "wlan0" be used when it is present, but fallback to "eth0" if
+not.
+
 ## Net graph
 
 The `--netgraph_max_bytes=<bytes>` arg enables a 10-character-wide text graph
