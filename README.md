@@ -101,7 +101,7 @@ For a reference of what kind of regex is supported,
 ## Net devices
 
 If you want to have a "fallback" network device to check on (such as a
-wifi-dongle), you can specify multipole network devices to "--netdev=...".
+wifi-dongle), you can specify multiple network devices to "--netdev=...".
 
 The first network device that does not error out when fetching info will be
 used.
