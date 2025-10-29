@@ -16,18 +16,18 @@ tiling Wayland compositor](https://swaywm.org).
 
 ## Help Text
 
-     Usage:
-       -h | --help                                      Prints help
-       --netdev=<device_name>                           Check network traffic on specified device
-       --netdev_width=<width>                           Sets the min-width of the netdev output (default 11)
-       --netgraph_max_bytes=<bytes>                     Enable "graph" output when polling network traffic
-                                                          (Set to "dynamic" instead of a byte count for dynamic sizing)
-       --netgraph_size=<size>                           Set the number of characters displayed in the net-graph (size of graph; default 10)
-       --netgraph_dyn_display                           Enable showing the current maximum value in the graph
-       --interval-sec=<seconds>                         Output at intervals of <seconds> (default 5)
-       --acpi-builtin                                   Use "acpi -b" built-in fetching (battery info, with color)
-       --regex-cmd=<cmd>[SPLIT]<args...>[SPLIT]<regex>  Use an output of a command as a metric
-       --time-format=<date format string>               Set the format string for the date
+    Usage:
+      -h | --help						Prints help
+      --netdev=<device_name>[,<device_name>...]				Check network traffic on specified device(s)
+      --netdev_width=<width>				Sets the min-width of the netdev output (default 11)
+      --netgraph_max_bytes=<bytes>				Enable "graph" output when polling network traffic
+                                                  (Set to "dynamic" instead of a byte count for dynamic sizing)
+      --netgraph_size=<size>				Set the number of characters displayed in the net-graph (size of graph; default 10)
+      --netgraph_dyn_display				Enable showing the current maximum value in the graph
+      --interval-sec=<seconds>				Output at intervals of <seconds> (default 5)
+      --acpi-builtin					Use "acpi -b" built-in fetching (battery info, with color)
+      --regex-cmd=<cmd>[SPLIT]<args...>[SPLIT]<regex>	Use an output of a command as a metric
+      --time-format=<date format string>			Set the format string for the date
 
 ## Usage
 
@@ -97,6 +97,14 @@ to white).
 
 For a reference of what kind of regex is supported,
 [see this page](https://docs.rs/regex/1.11.1/regex/index.html#syntax).
+
+## Net devices
+
+If you want to have a "fallback" network device to check on (such as a
+wifi-dongle), you can specify multipole network devices to "--netdev=...".
+
+The first network device that does not error out when fetching info will be
+used.
 
 ## Net graph
 

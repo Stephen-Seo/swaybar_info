@@ -51,7 +51,7 @@ fn main() {
     let mut net_graph_show_dynamic_max: bool = false;
     let mut interval: Duration = Duration::from_secs(5);
     let mut net_graph_size: Option<usize> = None;
-    if args_result.map.contains_key("netdev") {
+    if !args_result.net_devices.is_empty() {
         if let Some(size_str) = args_result.map.get("netgraph-size") {
             if let Ok(size) = size_str.parse::<usize>() {
                 if size > 0 {
@@ -75,10 +75,12 @@ fn main() {
                     .ok();
             }
         }
-        net_obj = Some(proc::NetInfo::new(
-            args_result.map.get("netdev").unwrap().to_owned(),
-            net_graph_size,
-        ));
+        for net_dev in &args_result.net_devices {
+            net_obj = Some(proc::NetInfo::new(net_dev.to_owned(), net_graph_size));
+            if net_obj.as_mut().unwrap().update().is_ok() {
+                break;
+            }
+        }
     }
     if net_graph_size.is_none() {
         net_graph_size = Some(10);

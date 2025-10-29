@@ -5,11 +5,13 @@ use std::io::Write;
 pub struct ArgsResult {
     pub map: HashMap<String, String>,
     pub regex_cmds: Vec<String>,
+    pub net_devices: Vec<String>,
 }
 
 pub fn get_args() -> ArgsResult {
     let mut map = HashMap::new();
     let mut regex_cmds = Vec::new();
+    let mut net_devices = Vec::new();
 
     let mut first = true;
     for arg in std::env::args() {
@@ -18,6 +20,13 @@ pub fn get_args() -> ArgsResult {
             continue;
         } else if arg.starts_with("--netdev=") {
             let (_, back) = arg.split_at(9);
+            if back.contains(',') {
+                for dev in back.split(',') {
+                    net_devices.push(dev.trim().to_owned());
+                }
+            } else {
+                net_devices.push(back.trim().to_owned());
+            }
             map.insert("netdev".into(), back.into());
         } else if arg.starts_with("--netdev_width=") {
             let (_, back) = arg.split_at(15);
@@ -51,7 +60,11 @@ pub fn get_args() -> ArgsResult {
         }
     }
 
-    ArgsResult { map, regex_cmds }
+    ArgsResult {
+        map,
+        regex_cmds,
+        net_devices,
+    }
 }
 
 pub fn print_usage() {
@@ -61,7 +74,7 @@ pub fn print_usage() {
         .write_all(b"  -h | --help\t\t\t\t\t\tPrints help\n")
         .ok();
     stderr_handle
-        .write_all(b"  --netdev=<device_name>\t\t\t\tCheck network traffic on specified device\n")
+        .write_all(b"  --netdev=<device_name>[,<device_name>...]\t\t\t\tCheck network traffic on specified device(s)\n")
         .ok();
     stderr_handle
         .write_all(b"  --netdev_width=<width>\t\t\t\tSets the min-width of the netdev output (default 11)\n")
