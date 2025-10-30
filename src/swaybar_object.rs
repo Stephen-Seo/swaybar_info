@@ -1,4 +1,5 @@
 use std::{
+    cell::RefCell,
     collections::HashMap,
     fmt::Display,
     ops::{Index, IndexMut},
@@ -59,6 +60,7 @@ pub struct SwaybarObject {
 pub struct SwaybarArray {
     objects: Vec<SwaybarObject>,
     objects_idx_map: HashMap<String, usize>,
+    temp_prepended: RefCell<Option<SwaybarObject>>,
 }
 
 impl SwaybarHeader {
@@ -181,6 +183,7 @@ impl SwaybarArray {
         Self {
             objects: Vec::new(),
             objects_idx_map: HashMap::new(),
+            temp_prepended: RefCell::new(None),
         }
     }
 
@@ -218,6 +221,10 @@ impl SwaybarArray {
             }
         }
     }
+
+    pub fn prepend_once(&mut self, obj: SwaybarObject) {
+        self.temp_prepended.borrow_mut().replace(obj);
+    }
 }
 
 impl Index<usize> for SwaybarArray {
@@ -238,6 +245,15 @@ impl Display for SwaybarArray {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut s = serde_json::to_string(&self.objects)
             .expect("Should be able to serialize SwaybarArray::objects");
+        let mut borrowed = self.temp_prepended.borrow_mut();
+        if let Some(borrowed) = borrowed.take() {
+            s.insert(1, ',');
+            s.insert_str(
+                1,
+                &serde_json::to_string(&borrowed)
+                    .expect("Should be able to serialize SwaybarObject"),
+            );
+        }
         s.push(',');
         f.write_str(&s)
     }

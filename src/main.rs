@@ -259,6 +259,7 @@ fn main() {
                     net.errored = true;
                     return update_result;
                 }
+                net.reset_fresh();
             }
         }
         let (netinfo_string, graph_items, max_idx, history_max) =
@@ -396,6 +397,10 @@ fn main() {
                 stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
                 net_obj = None;
                 set_net_error(is_empty, &mut array, &net_graph_max);
+            } else if net.get_fresh() {
+                let mut obj: SwaybarObject = SwaybarObject::new("dev_name".into());
+                obj.full_text = net.get_dev_name().to_owned();
+                array.prepend_once(obj);
             }
         }
 
