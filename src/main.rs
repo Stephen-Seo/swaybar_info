@@ -2,14 +2,32 @@ mod args;
 mod builtin;
 mod external;
 mod proc;
+mod signal_handling;
 mod swaybar_object;
 
+use std::ffi::c_int;
 use std::fmt::Write as FMTWrite;
 use std::io::{self, Write};
+use std::sync::atomic::AtomicBool;
+use std::sync::{LazyLock, RwLock};
+use std::thread::{self, Thread};
 use std::time::Duration;
 use swaybar_object::*;
 
 const DEFAULT_FMT_STRING: &str = "%F %r";
+
+static IS_RUNNING: AtomicBool = AtomicBool::new(true);
+static MAIN_THREAD_HANDLE: LazyLock<RwLock<Option<Thread>>> = LazyLock::new(|| RwLock::new(None));
+
+extern "C" fn handle_signal(_sig: c_int) {
+    println!("Interrupt...");
+    IS_RUNNING.store(false, std::sync::atomic::Ordering::SeqCst);
+    if let Ok(t_handle_opt) = MAIN_THREAD_HANDLE.read().as_ref() {
+        if let Some(t_handle) = t_handle_opt.as_ref() {
+            t_handle.unpark();
+        }
+    }
+}
 
 fn main() {
     let args_result = args::get_args();
@@ -329,7 +347,17 @@ fn main() {
         Ok(())
     };
 
-    loop {
+    MAIN_THREAD_HANDLE
+        .write()
+        .as_mut()
+        .unwrap()
+        .replace(thread::current());
+
+    signal_handling::handle_signal(libc::SIGINT, handle_signal);
+    signal_handling::handle_signal(libc::SIGHUP, handle_signal);
+    signal_handling::handle_signal(libc::SIGTERM, handle_signal);
+
+    while IS_RUNNING.load(std::sync::atomic::Ordering::SeqCst) {
         let is_empty = array.is_empty();
 
         // network traffic
@@ -452,6 +480,6 @@ fn main() {
         }
 
         println!("{}", array);
-        std::thread::sleep(interval);
+        thread::park_timeout(interval);
     }
 }
