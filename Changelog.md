@@ -2,6 +2,13 @@
 
 ## Upcoming Changes
 
+Handle SIGINT/SIGHUP/SIGTERM to shut down swaybar\_info gracefully.
+
+More robust network device handling (handy if multiple devices are used with
+`--netdev=...`).
+
+Display the currently used network device for a few seconds if enabled.
+
 ## 0.1.22
 
 New feature: multiple network devices with `--netdev=<dev>,<dev>,...`. See the
