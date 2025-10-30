@@ -231,7 +231,36 @@ fn main() {
                       net: &mut proc::NetInfo,
                       array: &mut SwaybarArray|
      -> Result<(), proc::Error> {
-        net.update()?;
+        let mut update_result = net.update();
+        // Attempt to re-check all net-devices on error.
+        if update_result.is_err() {
+            if net.errored {
+                return update_result;
+            }
+
+            let mut success = false;
+            for net_dev in &args_result.net_devices {
+                let mut temp_net_obj = proc::NetInfo::new(net_dev.to_owned(), None);
+                if temp_net_obj.update().is_ok() {
+                    net.set_dev_name(net_dev);
+                    success = true;
+                    break;
+                }
+            }
+
+            if !success {
+                // All net-devices caused an error, set error flag.
+                net.errored = true;
+                return update_result;
+            } else {
+                // Redo an update to ensure the net-device works.
+                update_result = net.update();
+                if update_result.is_err() {
+                    net.errored = true;
+                    return update_result;
+                }
+            }
+        }
         let (netinfo_string, graph_items, max_idx, history_max) =
             net.get_netstring(net_graph_max)?;
         let netinfo_parts: Vec<&str> = netinfo_string.split_whitespace().collect();

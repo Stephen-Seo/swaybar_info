@@ -97,6 +97,7 @@ pub struct NetInfo {
     up: u64,
     prev_up: u64,
     first_iteration: bool,
+    pub errored: bool,
 }
 
 impl NetInfo {
@@ -113,6 +114,7 @@ impl NetInfo {
             up: 0,
             prev_up: 0,
             first_iteration: true,
+            errored: false,
         };
 
         if let Some(graph_size) = graph_size_opt {
@@ -334,6 +336,10 @@ impl NetInfo {
         }
 
         Ok((output, &self.graph, history_max_idx, diff_max_string))
+    }
+
+    pub fn set_dev_name(&mut self, dev_name: &str) {
+        self.dev_name = dev_name.to_owned();
     }
 }
 
