@@ -20,7 +20,7 @@ static IS_RUNNING: AtomicBool = AtomicBool::new(true);
 static MAIN_THREAD_HANDLE: LazyLock<RwLock<Option<Thread>>> = LazyLock::new(|| RwLock::new(None));
 
 extern "C" fn handle_signal(_sig: c_int) {
-    println!("Interrupt...");
+    eprintln!("Interrupt...");
     IS_RUNNING.store(false, std::sync::atomic::Ordering::SeqCst);
     if let Ok(t_handle_opt) = MAIN_THREAD_HANDLE.read().as_ref() {
         if let Some(t_handle) = t_handle_opt.as_ref() {
