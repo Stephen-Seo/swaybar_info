@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+## 0.1.23
+
 Handle SIGINT/SIGHUP/SIGTERM to shut down swaybar\_info gracefully.
 
 More robust network device handling (handy if multiple devices are used with
