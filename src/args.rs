@@ -71,44 +71,44 @@ pub fn print_usage() {
     let mut stderr_handle = io::stderr().lock();
     stderr_handle.write_all(b"Usage:\n").ok();
     stderr_handle
-        .write_all(b"  -h | --help\t\t\t\t\t\tPrints help\n")
+        .write_all(b"  -h | --help                                      Prints help\n")
         .ok();
     stderr_handle
-        .write_all(b"  --netdev=<device_name>[,<device_name>...]\t\t\t\tCheck network traffic on specified device(s)\n")
+        .write_all(b"  --netdev=<device_name>[,<device_name>...]        Check network traffic on specified device(s)\n")
         .ok();
     stderr_handle
-        .write_all(b"  --netdev_width=<width>\t\t\t\tSets the min-width of the netdev output (default 11)\n")
+        .write_all(b"  --netdev_width=<width>                           Sets the min-width of the netdev output (default 11)\n")
         .ok();
     stderr_handle
-        .write_all(b"  --netgraph_max_bytes=<bytes>\t\t\t\tEnable \"graph\" output when polling network traffic\n")
+        .write_all(b"  --netgraph_max_bytes=<bytes>                     Enable \"graph\" output when polling network traffic\n")
         .ok();
     stderr_handle
-        .write_all(b"                              \t\t\t\t  (Set to \"dynamic\" instead of a byte count for dynamic sizing)\n")
+        .write_all(b"                                                     (Set to \"dynamic\" instead of a byte count for dynamic sizing)\n")
         .ok();
     stderr_handle
-        .write_all(b"  --netgraph_size=<size>\t\t\t\tSet the number of characters displayed in the net-graph (size of graph; default 10)\n")
+        .write_all(b"  --netgraph_size=<size>                           Set the number of characters displayed in the net-graph (size of graph; default 10)\n")
         .ok();
     stderr_handle
-        .write_all(b"  --netgraph_dyn_display\t\t\t\tEnable showing the current maximum value in the graph\n")
+        .write_all(b"  --netgraph_dyn_display                           Enable showing the current maximum value in the graph\n")
         .ok();
     stderr_handle
         .write_all(
-            b"  --interval-sec=<seconds>\t\t\t\tOutput at intervals of <seconds> (default 5)\n",
+            b"  --interval-sec=<seconds>                         Output at intervals of <seconds> (default 5)\n",
         )
         .ok();
     stderr_handle
         .write_all(
-            b"  --acpi-builtin\t\t\t\t\tUse \"acpi -b\" built-in fetching (battery info, with color)\n",
+            b"  --acpi-builtin                                   Use \"acpi -b\" built-in fetching (battery info, with color)\n",
         )
         .ok();
     stderr_handle
         .write_all(
-            b"  --regex-cmd=<cmd>[SPLIT]<args...>[SPLIT]<regex>\tUse an output of a command as a metric\n",
+            b"  --regex-cmd=<cmd>[SPLIT]<args...>[SPLIT]<regex>  Use an output of a command as a metric\n",
         )
         .ok();
     stderr_handle
         .write_all(
-            b"  --time-format=<date format string>\t\t\tSet the format string for the date\n",
+            b"  --time-format=<date format string>               Set the format string for the date\n",
         )
         .ok();
 }

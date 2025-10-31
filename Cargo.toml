@@ -1,6 +1,6 @@
 [package]
 name = "swaybar_info"
-version = "0.1.22"
+version = "0.1.23"
 edition = "2021"
 description = "Provides swaybar with info to be displayed"
 license = "MIT"
@@ -13,3 +13,4 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 chrono = "0.4"
 regex = "1.12"
+libc = "0.2"

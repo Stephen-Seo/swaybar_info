@@ -3,6 +3,8 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::Write as IOWrite;
 
+const MAX_NET_FRESH_COUNT: u32 = 2;
+
 #[derive(Debug)]
 pub enum Error {
     IO(std::io::Error),
@@ -97,6 +99,8 @@ pub struct NetInfo {
     up: u64,
     prev_up: u64,
     first_iteration: bool,
+    pub errored: bool,
+    fresh_count: u32,
 }
 
 impl NetInfo {
@@ -113,6 +117,8 @@ impl NetInfo {
             up: 0,
             prev_up: 0,
             first_iteration: true,
+            errored: false,
+            fresh_count: 0,
         };
 
         if let Some(graph_size) = graph_size_opt {
@@ -334,6 +340,27 @@ impl NetInfo {
         }
 
         Ok((output, &self.graph, history_max_idx, diff_max_string))
+    }
+
+    pub fn get_dev_name(&self) -> &str {
+        &self.dev_name
+    }
+
+    pub fn set_dev_name(&mut self, dev_name: &str) {
+        self.dev_name = dev_name.to_owned();
+    }
+
+    pub fn get_fresh(&mut self) -> bool {
+        if self.fresh_count < MAX_NET_FRESH_COUNT {
+            self.fresh_count += 1;
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn reset_fresh(&mut self) {
+        self.fresh_count = 0;
     }
 }
 

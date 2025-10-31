@@ -2,14 +2,32 @@ mod args;
 mod builtin;
 mod external;
 mod proc;
+mod signal_handling;
 mod swaybar_object;
 
+use std::ffi::c_int;
 use std::fmt::Write as FMTWrite;
 use std::io::{self, Write};
+use std::sync::atomic::AtomicBool;
+use std::sync::{LazyLock, RwLock};
+use std::thread::{self, Thread};
 use std::time::Duration;
 use swaybar_object::*;
 
 const DEFAULT_FMT_STRING: &str = "%F %r";
+
+static IS_RUNNING: AtomicBool = AtomicBool::new(true);
+static MAIN_THREAD_HANDLE: LazyLock<RwLock<Option<Thread>>> = LazyLock::new(|| RwLock::new(None));
+
+extern "C" fn handle_signal(_sig: c_int) {
+    eprintln!("Interrupt...");
+    IS_RUNNING.store(false, std::sync::atomic::Ordering::SeqCst);
+    if let Ok(t_handle_opt) = MAIN_THREAD_HANDLE.read().as_ref() {
+        if let Some(t_handle) = t_handle_opt.as_ref() {
+            t_handle.unpark();
+        }
+    }
+}
 
 fn main() {
     let args_result = args::get_args();
@@ -213,7 +231,37 @@ fn main() {
                       net: &mut proc::NetInfo,
                       array: &mut SwaybarArray|
      -> Result<(), proc::Error> {
-        net.update()?;
+        let mut update_result = net.update();
+        // Attempt to re-check all net-devices on error.
+        if update_result.is_err() {
+            if net.errored {
+                return update_result;
+            }
+
+            let mut success = false;
+            for net_dev in &args_result.net_devices {
+                let mut temp_net_obj = proc::NetInfo::new(net_dev.to_owned(), None);
+                if temp_net_obj.update().is_ok() {
+                    net.set_dev_name(net_dev);
+                    success = true;
+                    break;
+                }
+            }
+
+            if !success {
+                // All net-devices caused an error, set error flag.
+                net.errored = true;
+                return update_result;
+            } else {
+                // Redo an update to ensure the net-device works.
+                update_result = net.update();
+                if update_result.is_err() {
+                    net.errored = true;
+                    return update_result;
+                }
+                net.reset_fresh();
+            }
+        }
         let (netinfo_string, graph_items, max_idx, history_max) =
             net.get_netstring(net_graph_max)?;
         let netinfo_parts: Vec<&str> = netinfo_string.split_whitespace().collect();
@@ -329,7 +377,17 @@ fn main() {
         Ok(())
     };
 
-    loop {
+    MAIN_THREAD_HANDLE
+        .write()
+        .as_mut()
+        .unwrap()
+        .replace(thread::current());
+
+    signal_handling::handle_signal(libc::SIGINT, handle_signal);
+    signal_handling::handle_signal(libc::SIGHUP, handle_signal);
+    signal_handling::handle_signal(libc::SIGTERM, handle_signal);
+
+    while IS_RUNNING.load(std::sync::atomic::Ordering::SeqCst) {
         let is_empty = array.is_empty();
 
         // network traffic
@@ -339,6 +397,10 @@ fn main() {
                 stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
                 net_obj = None;
                 set_net_error(is_empty, &mut array, &net_graph_max);
+            } else if net.get_fresh() {
+                let mut obj: SwaybarObject = SwaybarObject::new("dev_name".into());
+                obj.full_text = net.get_dev_name().to_owned();
+                array.prepend_once(obj);
             }
         }
 
@@ -452,6 +514,6 @@ fn main() {
         }
 
         println!("{}", array);
-        std::thread::sleep(interval);
+        thread::park_timeout(interval);
     }
 }
