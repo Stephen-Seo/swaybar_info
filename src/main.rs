@@ -9,7 +9,7 @@ use std::ffi::c_int;
 use std::fmt::Write as FMTWrite;
 use std::io::{self, Write};
 use std::sync::atomic::AtomicBool;
-use std::sync::{LazyLock, RwLock};
+use std::sync::RwLock;
 use std::thread::{self, Thread};
 use std::time::Duration;
 use swaybar_object::*;
@@ -17,7 +17,7 @@ use swaybar_object::*;
 const DEFAULT_FMT_STRING: &str = "%F %r";
 
 static IS_RUNNING: AtomicBool = AtomicBool::new(true);
-static MAIN_THREAD_HANDLE: LazyLock<RwLock<Option<Thread>>> = LazyLock::new(|| RwLock::new(None));
+static MAIN_THREAD_HANDLE: RwLock<Option<Thread>> = RwLock::new(None);
 
 extern "C" fn handle_signal(_sig: c_int) {
     eprintln!("Interrupt...");
