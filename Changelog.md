@@ -6,6 +6,9 @@
 
 `cargo update` (updating dependencies).
 
+Minor refactoring related to graceful shutdown on signal
+(SIGHUP/SIGINT/SIGTERM).
+
 ## 0.1.23
 
 Handle SIGINT/SIGHUP/SIGTERM to shut down swaybar\_info gracefully.
