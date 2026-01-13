@@ -2,6 +2,10 @@
 
 ## Upcoming Changes
 
+## 0.1.24
+
+`cargo update` (updating dependencies).
+
 ## 0.1.23
 
 Handle SIGINT/SIGHUP/SIGTERM to shut down swaybar\_info gracefully.
