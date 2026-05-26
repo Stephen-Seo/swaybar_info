@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+`cargo update` (updating Rust dependencies).
+
 ## 0.1.24
 
 `cargo update` (updating dependencies).
