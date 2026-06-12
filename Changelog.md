@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+## Version 0.2.0
+
 `cargo update` (updating Rust dependencies).
 
 Implement net-dev "all" that tracks network traffic stats from all interfaces
