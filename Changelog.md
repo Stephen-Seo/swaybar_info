@@ -2,6 +2,11 @@
 
 ## Upcoming Changes
 
+`cargo update` (updating Rust dependencies).
+
+Implement net-dev "all" that tracks network traffic stats from all interfaces
+other than the loopback interface.
+
 ## 0.1.25
 
 `cargo update` (updating Rust dependencies).
