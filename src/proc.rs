@@ -148,33 +148,56 @@ impl NetInfo {
             netdev_file.read_to_string(&mut netdev_string)?;
         }
 
-        let mut dev_line: Option<&str> = None;
-        for line in netdev_string.lines().map(|line| line.trim()) {
-            if line.starts_with(&self.dev_name) {
-                dev_line = Some(line);
-                break;
+        let mut dev_lines: Vec<&str> = Vec::new();
+        if self.dev_name == "all" {
+            for line in netdev_string.lines().map(|line| line.trim()) {
+                let has: bool = line
+                    .split(' ')
+                    .take(1)
+                    .filter(|first| first.ends_with(':') && first != &"lo:")
+                    .count()
+                    != 0;
+                if has {
+                    dev_lines.push(line);
+                }
+            }
+        } else {
+            let dev_str: String = self.dev_name.clone() + ":";
+            for line in netdev_string.lines().map(|line| line.trim()) {
+                if line.starts_with(&dev_str) {
+                    dev_lines.push(line);
+                    break;
+                }
             }
         }
 
-        if let Some(line) = dev_line {
-            let entries: Vec<&str> = line.split_whitespace().collect();
-            if entries.len() < 10 {
-                return Err(format!("NetInfo::update: Failed to parse /proc/net/dev, \"{}\" device line is too short", self.dev_name).into());
-            }
-
-            if !self.first_iteration {
-                self.down = entries[1].parse()?;
-                self.up = entries[9].parse()?;
-            } else {
-                self.prev_down = entries[1].parse()?;
-                self.prev_up = entries[9].parse()?;
-            }
-        } else {
+        if dev_lines.is_empty() {
             return Err(format!(
                 "NetInfo::update: Failed to parse /proc/net/dev, can't find net device \"{}\"",
                 self.dev_name
             )
             .into());
+        }
+
+        let mut down: u64 = 0;
+        let mut up: u64 = 0;
+
+        for line in dev_lines {
+            let entries: Vec<&str> = line.split_whitespace().collect();
+            if entries.len() < 10 {
+                return Err(format!("NetInfo::update: Failed to parse /proc/net/dev, \"{}\" device line is too short", self.dev_name).into());
+            }
+
+            down += entries[1].parse::<u64>()?;
+            up += entries[9].parse::<u64>()?;
+        }
+
+        if !self.first_iteration {
+            self.down = down;
+            self.up = up;
+        } else {
+            self.prev_down = down;
+            self.prev_up = up;
         }
 
         self.first_iteration = false;
