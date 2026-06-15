@@ -1,3 +1,4 @@
+use crate::args::ArgsResult;
 use std::fmt::Write as FMTWrite;
 use std::fs::File;
 use std::io::prelude::*;
@@ -101,10 +102,11 @@ pub struct NetInfo {
     first_iteration: bool,
     pub errored: bool,
     fresh_count: u32,
+    args: ArgsResult,
 }
 
 impl NetInfo {
-    pub fn new(dev_name: String, graph_size_opt: Option<usize>) -> Self {
+    pub fn new(dev_name: String, graph_size_opt: Option<usize>, args: ArgsResult) -> Self {
         let mut s = Self {
             dev_name,
             graph: vec![GraphItem {
@@ -119,7 +121,13 @@ impl NetInfo {
             first_iteration: true,
             errored: false,
             fresh_count: 0,
+            args,
         };
+
+        if !s.args.blacklist_exact.contains("lo") {
+            // Ensure the loopback net device is ignored.
+            s.args.blacklist_exact.insert("lo".to_owned());
+        }
 
         if let Some(graph_size) = graph_size_opt {
             if graph_size > 0 {
@@ -141,6 +149,62 @@ impl NetInfo {
         s
     }
 
+    fn check_netdev_wb(&self, netdev: &str) -> bool {
+        if self.args.whitelist_exact.is_empty()
+            && self.args.whitelist_contains.is_empty()
+            && self.args.whitelist_begins.is_empty()
+            && self.args.whitelist_ends.is_empty()
+        {
+            if self.args.blacklist_exact.contains(netdev) {
+                return false;
+            }
+
+            for b_contains in &self.args.blacklist_contains {
+                if netdev.contains(b_contains) {
+                    return false;
+                }
+            }
+
+            for b_begins in &self.args.blacklist_begins {
+                if netdev.starts_with(b_begins) {
+                    return false;
+                }
+            }
+
+            for b_ends in &self.args.blacklist_ends {
+                if netdev.ends_with(b_ends) {
+                    return false;
+                }
+            }
+
+            true
+        } else {
+            if self.args.whitelist_exact.contains(netdev) {
+                return true;
+            }
+
+            for w_contains in &self.args.whitelist_contains {
+                if netdev.contains(w_contains) {
+                    return true;
+                }
+            }
+
+            for w_begins in &self.args.whitelist_begins {
+                if netdev.starts_with(w_begins) {
+                    return true;
+                }
+            }
+
+            for w_ends in &self.args.whitelist_ends {
+                if netdev.ends_with(w_ends) {
+                    return true;
+                }
+            }
+
+            false
+        }
+    }
+
     pub fn update(&mut self) -> Result<(), Error> {
         let mut netdev_string = String::new();
         {
@@ -154,7 +218,9 @@ impl NetInfo {
                 let has: bool = line
                     .split(' ')
                     .take(1)
-                    .filter(|first| first.ends_with(':') && first != &"lo:")
+                    .filter(|first| {
+                        first.ends_with(':') && self.check_netdev_wb(first.trim_end_matches(':'))
+                    })
                     .count()
                     != 0;
                 if has {

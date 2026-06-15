@@ -94,7 +94,11 @@ fn main() {
             }
         }
         for net_dev in &args_result.net_devices {
-            net_obj = Some(proc::NetInfo::new(net_dev.to_owned(), net_graph_size));
+            net_obj = Some(proc::NetInfo::new(
+                net_dev.to_owned(),
+                net_graph_size,
+                args_result.clone(),
+            ));
             if net_obj.as_mut().unwrap().update().is_ok() {
                 break;
             }
@@ -240,7 +244,8 @@ fn main() {
 
             let mut success = false;
             for net_dev in &args_result.net_devices {
-                let mut temp_net_obj = proc::NetInfo::new(net_dev.to_owned(), None);
+                let mut temp_net_obj =
+                    proc::NetInfo::new(net_dev.to_owned(), None, args_result.clone());
                 if temp_net_obj.update().is_ok() {
                     net.set_dev_name(net_dev);
                     success = true;
