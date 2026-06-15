@@ -16,6 +16,8 @@ are added:
 
 Note that the whitelist commands have precedence over the blacklist commands.
 
+`cargo update` (updating Rust dependencies).
+
 ## Version 0.2.0
 
 `cargo update` (updating Rust dependencies).
