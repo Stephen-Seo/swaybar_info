@@ -1,17 +1,35 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::io;
 use std::io::Write;
 
+#[derive(Clone)]
 pub struct ArgsResult {
     pub map: HashMap<String, String>,
     pub regex_cmds: Vec<String>,
     pub net_devices: Vec<String>,
+    pub whitelist_exact: HashSet<String>,
+    pub whitelist_contains: HashSet<String>,
+    pub whitelist_begins: HashSet<String>,
+    pub whitelist_ends: HashSet<String>,
+    pub blacklist_exact: HashSet<String>,
+    pub blacklist_contains: HashSet<String>,
+    pub blacklist_begins: HashSet<String>,
+    pub blacklist_ends: HashSet<String>,
 }
 
 pub fn get_args() -> ArgsResult {
     let mut map = HashMap::new();
     let mut regex_cmds = Vec::new();
     let mut net_devices = Vec::new();
+
+    let mut w_exact: HashSet<String> = HashSet::new();
+    let mut w_contains: HashSet<String> = HashSet::new();
+    let mut w_begins: HashSet<String> = HashSet::new();
+    let mut w_ends: HashSet<String> = HashSet::new();
+    let mut b_exact: HashSet<String> = HashSet::new();
+    let mut b_contains: HashSet<String> = HashSet::new();
+    let mut b_begins: HashSet<String> = HashSet::new();
+    let mut b_ends: HashSet<String> = HashSet::new();
 
     let mut first = true;
     for arg in std::env::args() {
@@ -50,6 +68,30 @@ pub fn get_args() -> ArgsResult {
         } else if arg.starts_with("--time-format=") {
             let (_, back) = arg.split_at(14);
             map.insert("time-format".into(), back.to_owned());
+        } else if arg.starts_with("--whitelist-exact=") {
+            let (_, back) = arg.split_at(18);
+            w_exact.insert(back.to_owned());
+        } else if arg.starts_with("--whitelist-contains=") {
+            let (_, back) = arg.split_at(21);
+            w_contains.insert(back.to_owned());
+        } else if arg.starts_with("--whitelist-begins=") {
+            let (_, back) = arg.split_at(19);
+            w_begins.insert(back.to_owned());
+        } else if arg.starts_with("--whitelist-ends=") {
+            let (_, back) = arg.split_at(17);
+            w_ends.insert(back.to_owned());
+        } else if arg.starts_with("--blacklist-exact=") {
+            let (_, back) = arg.split_at(18);
+            b_exact.insert(back.to_owned());
+        } else if arg.starts_with("--blacklist-contains=") {
+            let (_, back) = arg.split_at(21);
+            b_contains.insert(back.to_owned());
+        } else if arg.starts_with("--blacklist-begins=") {
+            let (_, back) = arg.split_at(19);
+            b_begins.insert(back.to_owned());
+        } else if arg.starts_with("--blacklist-ends=") {
+            let (_, back) = arg.split_at(17);
+            b_ends.insert(back.to_owned());
         } else if arg == "--help" || arg == "-h" {
             map.insert("help".into(), "".into());
         } else {
@@ -64,6 +106,14 @@ pub fn get_args() -> ArgsResult {
         map,
         regex_cmds,
         net_devices,
+        whitelist_exact: w_exact,
+        whitelist_contains: w_contains,
+        whitelist_begins: w_begins,
+        whitelist_ends: w_ends,
+        blacklist_exact: b_exact,
+        blacklist_contains: b_contains,
+        blacklist_begins: b_begins,
+        blacklist_ends: b_ends,
     }
 }
 
@@ -75,6 +125,30 @@ pub fn print_usage() {
         .ok();
     stderr_handle
         .write_all(b"  --netdev=<device_name>[,<device_name>...]        Check network traffic on specified device(s)\n")
+        .ok();
+    stderr_handle
+        .write_all(b"  --whitelist-exact=<str>                          When netdev is \"all\", whitelist netdevs to exact entries\n")
+        .ok();
+    stderr_handle
+        .write_all(b"  --whitelist-contains=<str>                       When netdev is \"all\", whitelist netdevs to entries that contains <str>\n")
+        .ok();
+    stderr_handle
+        .write_all(b"  --whitelist-begins=<str>                         When netdev is \"all\", whitelist netdevs to entries that begins with <str>\n")
+        .ok();
+    stderr_handle
+        .write_all(b"  --whitelist-ends=<str>                           When netdev is \"all\", whitelist netdevs to entries that ends with <str>\n")
+        .ok();
+    stderr_handle
+        .write_all(b"  --blacklist-exact=<str>                          When netdev is \"all\", blacklist netdevs to exact entries\n")
+        .ok();
+    stderr_handle
+        .write_all(b"  --blacklist-contains=<str>                       When netdev is \"all\", blacklist netdevs to entries that contains <str>\n")
+        .ok();
+    stderr_handle
+        .write_all(b"  --blacklist-begins=<str>                         When netdev is \"all\", blacklist netdevs to entries that begins with <str>\n")
+        .ok();
+    stderr_handle
+        .write_all(b"  --blacklist-ends=<str>                           When netdev is \"all\", blacklist netdevs to entries that ends with <str>\n")
         .ok();
     stderr_handle
         .write_all(b"  --netdev_width=<width>                           Sets the min-width of the netdev output (default 11)\n")
