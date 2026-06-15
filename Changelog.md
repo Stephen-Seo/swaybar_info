@@ -2,6 +2,20 @@
 
 ## Upcoming Changes
 
+Implement white/black-listing if net-dev "all" is used. The following options
+are added:
+
+--whitelist-exact=
+--whitelist-contains=
+--whitelist-begins=
+--whitelist-ends=
+--blacklist-exact=
+--blacklist-contains=
+--blacklist-begins=
+--blacklist-ends=
+
+Note that the whitelist commands have precedence over the blacklist commands.
+
 ## Version 0.2.0
 
 `cargo update` (updating Rust dependencies).
