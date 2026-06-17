@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+## Version 0.2.2
+
 Internal refactoring related to net-dev handling (should be more efficient).
 
 ## Version 0.2.1
