@@ -31,6 +31,9 @@ pub fn get_args() -> ArgsResult {
     let mut b_begins: HashSet<String> = HashSet::new();
     let mut b_ends: HashSet<String> = HashSet::new();
 
+    // Ensure the loopback net device is ignored.
+    b_exact.insert("lo".to_owned());
+
     let mut first = true;
     for arg in std::env::args() {
         if first {
