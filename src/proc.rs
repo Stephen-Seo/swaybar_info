@@ -92,7 +92,7 @@ impl GraphItem {
     }
 }
 
-pub struct NetInfo {
+pub struct NetInfo<'a> {
     dev_name: String,
     graph: Vec<GraphItem>,
     down: u64,
@@ -102,11 +102,11 @@ pub struct NetInfo {
     first_iteration: bool,
     pub errored: bool,
     fresh_count: u32,
-    args: ArgsResult,
+    args: &'a ArgsResult,
 }
 
-impl NetInfo {
-    pub fn new(dev_name: String, graph_size_opt: Option<usize>, args: ArgsResult) -> Self {
+impl<'a> NetInfo<'a> {
+    pub fn new(dev_name: String, graph_size_opt: Option<usize>, args: &'a ArgsResult) -> Self {
         let mut s = Self {
             dev_name,
             graph: vec![GraphItem {
@@ -123,11 +123,6 @@ impl NetInfo {
             fresh_count: 0,
             args,
         };
-
-        if !s.args.blacklist_exact.contains("lo") {
-            // Ensure the loopback net device is ignored.
-            s.args.blacklist_exact.insert("lo".to_owned());
-        }
 
         if let Some(graph_size) = graph_size_opt {
             if graph_size > 0 {
