@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+Internal refactoring related to net-dev handling (should be more efficient).
+
 ## Version 0.2.1
 
 Implement white/black-listing if net-dev "all" is used. The following options
