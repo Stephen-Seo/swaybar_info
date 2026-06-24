@@ -21,7 +21,7 @@ static MAIN_THREAD_HANDLE: RwLock<Option<Thread>> = RwLock::new(None);
 
 extern "C" fn handle_signal(_sig: c_int) {
     eprintln!("Interrupt...");
-    IS_RUNNING.store(false, std::sync::atomic::Ordering::SeqCst);
+    IS_RUNNING.store(false, std::sync::atomic::Ordering::Release);
     if let Ok(t_handle_opt) = MAIN_THREAD_HANDLE.read().as_ref()
         && let Some(t_handle) = t_handle_opt.as_ref()
     {
@@ -388,7 +388,7 @@ fn main() {
     signal_handling::handle_signal(libc::SIGHUP, handle_signal);
     signal_handling::handle_signal(libc::SIGTERM, handle_signal);
 
-    while IS_RUNNING.load(std::sync::atomic::Ordering::SeqCst) {
+    while IS_RUNNING.load(std::sync::atomic::Ordering::Acquire) {
         let is_empty = array.is_empty();
 
         // network traffic
