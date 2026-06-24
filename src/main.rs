@@ -32,11 +32,11 @@ extern "C" fn handle_signal(_sig: c_int) {
     }
 }
 
-fn main() {
+fn main() -> Result<(), Error> {
     let args_result = args::get_args();
     if args_result.map.contains_key("help") {
         args::print_usage();
-        return;
+        return Ok(());
     }
 
     let mut cmds: Vec<(&str, Vec<&str>, regex::Regex)> = Vec::new();
@@ -79,21 +79,17 @@ fn main() {
                     net_graph_size = Some(size);
                 } else {
                     let mut stderr_handle = io::stderr().lock();
-                    stderr_handle
-                        .write_all(
-                            "WARNING: Invalid value passed to --netgraph_size=..., ignoring...\n"
-                                .as_bytes(),
-                        )
-                        .ok();
+                    stderr_handle.write_all(
+                        "WARNING: Invalid value passed to --netgraph_size=..., ignoring...\n"
+                            .as_bytes(),
+                    )?;
                 }
             } else {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle
-                    .write_all(
-                        "WARNING: Invalid value passed to --netgraph_size=..., ignoring...\n"
-                            .as_bytes(),
-                    )
-                    .ok();
+                stderr_handle.write_all(
+                    "WARNING: Invalid value passed to --netgraph_size=..., ignoring...\n"
+                        .as_bytes(),
+                )?;
             }
         }
         for net_dev in &args_result.net_devices {
@@ -117,11 +113,9 @@ fn main() {
             net_width = Some(width);
         } else {
             let mut stderr_handle = io::stderr().lock();
-            stderr_handle
-                .write_all(
-                    "WARNING: Invalid value passed to --netdev_width=..., ignoring...\n".as_bytes(),
-                )
-                .ok();
+            stderr_handle.write_all(
+                "WARNING: Invalid value passed to --netdev_width=..., ignoring...\n".as_bytes(),
+            )?;
         }
     }
     if args_result.map.contains_key("netgraph") {
@@ -133,12 +127,10 @@ fn main() {
                 net_graph_max = Some(graph_max);
             } else {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle
-                    .write_all(
-                        "WARNING: Invalid value passed to --netgraph_max_bytes=..., ignoring...\n"
-                            .as_bytes(),
-                    )
-                    .ok();
+                stderr_handle.write_all(
+                    "WARNING: Invalid value passed to --netgraph_max_bytes=..., ignoring...\n"
+                        .as_bytes(),
+                )?;
             }
         }
     }
@@ -152,21 +144,18 @@ fn main() {
                 interval = Duration::from_secs(seconds_value as u64);
             } else {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle
-                    .write_all(
-                        format!(
-                            "WARNING: Invalid --interval-sec=\"{}\", defaulting to 5!\n",
-                            seconds_value
-                        )
-                        .as_bytes(),
+                stderr_handle.write_all(
+                    format!(
+                        "WARNING: Invalid --interval-sec=\"{}\", defaulting to 5!\n",
+                        seconds_value
                     )
-                    .ok();
+                    .as_bytes(),
+                )?;
             }
         } else {
             let mut stderr_handle = io::stderr().lock();
             stderr_handle
-                .write_all(b"WARNING: Failed to parse --interval-sec=?, defaulting to 5!\n")
-                .ok();
+                .write_all(b"WARNING: Failed to parse --interval-sec=?, defaulting to 5!\n")?;
         }
     }
 
@@ -398,7 +387,7 @@ fn main() {
         if let Some(net) = net_obj.as_mut() {
             if let Err(e) = handle_net(is_empty, net, &mut array) {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                stderr_handle.write_all(format!("{}\n", e).as_bytes())?;
                 net_obj = None;
                 set_net_error(is_empty, &mut array, &net_graph_max);
             } else if net.get_fresh() {
@@ -413,7 +402,7 @@ fn main() {
             let meminfo_result = proc::get_meminfo();
             let meminfo_string: String = if let Err(e) = meminfo_result {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                stderr_handle.write_all(format!("{}\n", e).as_bytes())?;
                 String::from("MEMINFO ERROR")
             } else {
                 meminfo_result.unwrap()
@@ -445,7 +434,7 @@ fn main() {
                     }
                 } else if let Err(e) = cmd_result {
                     let mut stderr_handle = io::stderr().lock();
-                    stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                    stderr_handle.write_all(format!("{}\n", e).as_bytes())?;
                     if is_empty {
                         let cmd_obj = SwaybarObject::from_error_string(
                             format!("regex_cmd_{}", idx),
@@ -471,7 +460,7 @@ fn main() {
                     array.push_object(new_object);
                     batt_info_error = true;
                     let mut stderr_handle = io::stderr().lock();
-                    stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                    stderr_handle.write_all(format!("{}\n", e).as_bytes())?;
                 } else {
                     array.push_object(new_object);
                 }
@@ -483,7 +472,7 @@ fn main() {
                     obj.update_as_error("BATTINFO ERROR".to_owned());
                     batt_info_error = true;
                     let mut stderr_handle = io::stderr().lock();
-                    stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                    stderr_handle.write_all(format!("{}\n", e).as_bytes())?;
                 }
             }
         }
@@ -493,7 +482,7 @@ fn main() {
             let loadavg_result = proc::get_loadavg();
             let loadavg_string: String = if let Err(e) = loadavg_result {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                stderr_handle.write_all(format!("{}\n", e).as_bytes())?;
                 String::from("LOADAVG ERROR")
             } else {
                 loadavg_result.unwrap()
@@ -518,4 +507,6 @@ fn main() {
         println!("{}", array);
         thread::park_timeout(interval);
     }
+
+    Ok(())
 }
