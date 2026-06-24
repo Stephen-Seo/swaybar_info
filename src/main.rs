@@ -1,9 +1,12 @@
 mod args;
 mod builtin;
+mod error;
 mod external;
 mod proc;
 mod signal_handling;
 mod swaybar_object;
+
+use error::Error;
 
 use std::ffi::c_int;
 use std::fmt::Write as FMTWrite;
@@ -235,7 +238,7 @@ fn main() {
     let handle_net = |is_empty: bool,
                       net: &mut proc::NetInfo,
                       array: &mut SwaybarArray|
-     -> Result<(), proc::Error> {
+     -> Result<(), Error> {
         let mut update_result = net.update();
         // Attempt to re-check all net-devices on error.
         if update_result.is_err() {

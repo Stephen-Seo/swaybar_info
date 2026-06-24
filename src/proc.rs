@@ -1,64 +1,12 @@
 use crate::args::Args;
+use crate::error::Error;
+
 use std::fmt::Write as FMTWrite;
 use std::fs::File;
 use std::io::Write as IOWrite;
 use std::io::prelude::*;
 
 const MAX_NET_FRESH_COUNT: u32 = 2;
-
-#[derive(Debug)]
-pub enum Error {
-    IO(std::io::Error),
-    ParseInt(std::num::ParseIntError),
-    Format(std::fmt::Error),
-    Generic(String),
-}
-
-impl From<std::io::Error> for Error {
-    fn from(io_error: std::io::Error) -> Self {
-        Self::IO(io_error)
-    }
-}
-
-impl From<std::num::ParseIntError> for Error {
-    fn from(parse_error: std::num::ParseIntError) -> Self {
-        Self::ParseInt(parse_error)
-    }
-}
-
-impl From<std::fmt::Error> for Error {
-    fn from(fmt_error: std::fmt::Error) -> Self {
-        Self::Format(fmt_error)
-    }
-}
-
-impl From<String> for Error {
-    fn from(string: String) -> Self {
-        Self::Generic(string)
-    }
-}
-
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Error::IO(e) => e.fmt(f),
-            Error::ParseInt(e) => e.fmt(f),
-            Error::Format(e) => e.fmt(f),
-            Error::Generic(s) => f.write_str(s),
-        }
-    }
-}
-
-impl std::error::Error for Error {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match self {
-            Error::IO(e) => e.source(),
-            Error::ParseInt(e) => e.source(),
-            Error::Format(e) => e.source(),
-            Error::Generic(_) => None,
-        }
-    }
-}
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum GraphItemType {
