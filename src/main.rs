@@ -1,15 +1,18 @@
 mod args;
 mod builtin;
+mod error;
 mod external;
 mod proc;
 mod signal_handling;
 mod swaybar_object;
 
+use error::Error;
+
 use std::ffi::c_int;
 use std::fmt::Write as FMTWrite;
 use std::io::{self, Write};
-use std::sync::atomic::AtomicBool;
 use std::sync::RwLock;
+use std::sync::atomic::AtomicBool;
 use std::thread::{self, Thread};
 use std::time::Duration;
 use swaybar_object::*;
@@ -21,19 +24,19 @@ static MAIN_THREAD_HANDLE: RwLock<Option<Thread>> = RwLock::new(None);
 
 extern "C" fn handle_signal(_sig: c_int) {
     eprintln!("Interrupt...");
-    IS_RUNNING.store(false, std::sync::atomic::Ordering::SeqCst);
-    if let Ok(t_handle_opt) = MAIN_THREAD_HANDLE.read().as_ref() {
-        if let Some(t_handle) = t_handle_opt.as_ref() {
-            t_handle.unpark();
-        }
+    IS_RUNNING.store(false, std::sync::atomic::Ordering::Release);
+    if let Ok(t_handle_opt) = MAIN_THREAD_HANDLE.read().as_ref()
+        && let Some(t_handle) = t_handle_opt.as_ref()
+    {
+        t_handle.unpark();
     }
 }
 
-fn main() {
+fn main() -> Result<(), Error> {
     let args_result = args::get_args();
     if args_result.map.contains_key("help") {
         args::print_usage();
-        return;
+        return Ok(());
     }
 
     let mut cmds: Vec<(&str, Vec<&str>, regex::Regex)> = Vec::new();
@@ -76,21 +79,17 @@ fn main() {
                     net_graph_size = Some(size);
                 } else {
                     let mut stderr_handle = io::stderr().lock();
-                    stderr_handle
-                        .write_all(
-                            "WARNING: Invalid value passed to --netgraph_size=..., ignoring...\n"
-                                .as_bytes(),
-                        )
-                        .ok();
+                    stderr_handle.write_all(
+                        "WARNING: Invalid value passed to --netgraph_size=..., ignoring...\n"
+                            .as_bytes(),
+                    )?;
                 }
             } else {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle
-                    .write_all(
-                        "WARNING: Invalid value passed to --netgraph_size=..., ignoring...\n"
-                            .as_bytes(),
-                    )
-                    .ok();
+                stderr_handle.write_all(
+                    "WARNING: Invalid value passed to --netgraph_size=..., ignoring...\n"
+                        .as_bytes(),
+                )?;
             }
         }
         for net_dev in &args_result.net_devices {
@@ -114,11 +113,9 @@ fn main() {
             net_width = Some(width);
         } else {
             let mut stderr_handle = io::stderr().lock();
-            stderr_handle
-                .write_all(
-                    "WARNING: Invalid value passed to --netdev_width=..., ignoring...\n".as_bytes(),
-                )
-                .ok();
+            stderr_handle.write_all(
+                "WARNING: Invalid value passed to --netdev_width=..., ignoring...\n".as_bytes(),
+            )?;
         }
     }
     if args_result.map.contains_key("netgraph") {
@@ -130,12 +127,10 @@ fn main() {
                 net_graph_max = Some(graph_max);
             } else {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle
-                    .write_all(
-                        "WARNING: Invalid value passed to --netgraph_max_bytes=..., ignoring...\n"
-                            .as_bytes(),
-                    )
-                    .ok();
+                stderr_handle.write_all(
+                    "WARNING: Invalid value passed to --netgraph_max_bytes=..., ignoring...\n"
+                        .as_bytes(),
+                )?;
             }
         }
     }
@@ -149,21 +144,18 @@ fn main() {
                 interval = Duration::from_secs(seconds_value as u64);
             } else {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle
-                    .write_all(
-                        format!(
-                            "WARNING: Invalid --interval-sec=\"{}\", defaulting to 5!\n",
-                            seconds_value
-                        )
-                        .as_bytes(),
+                stderr_handle.write_all(
+                    format!(
+                        "WARNING: Invalid --interval-sec=\"{}\", defaulting to 5!\n",
+                        seconds_value
                     )
-                    .ok();
+                    .as_bytes(),
+                )?;
             }
         } else {
             let mut stderr_handle = io::stderr().lock();
             stderr_handle
-                .write_all(b"WARNING: Failed to parse --interval-sec=?, defaulting to 5!\n")
-                .ok();
+                .write_all(b"WARNING: Failed to parse --interval-sec=?, defaulting to 5!\n")?;
         }
     }
 
@@ -207,16 +199,17 @@ fn main() {
             let up_obj = SwaybarObject::from_error_string("net_up".to_owned(), "Net ERROR".into());
             array.push_object(up_obj);
         } else {
-            if net_graph_is_dynamic && net_graph_show_dynamic_max {
-                if let Some(dyn_max) = array.get_by_name_mut("net_graph_dyn_max") {
-                    dyn_max.update_as_error("Net ERROR".to_owned());
-                }
+            if net_graph_is_dynamic
+                && net_graph_show_dynamic_max
+                && let Some(dyn_max) = array.get_by_name_mut("net_graph_dyn_max")
+            {
+                dyn_max.update_as_error("Net ERROR".to_owned());
             }
 
-            if graph_max_opt.is_some() || net_graph_is_dynamic {
-                if let Some(graph_ref) = array.get_by_name_mut("net_graph") {
-                    graph_ref.update_as_error("Net ERROR".to_owned());
-                }
+            if (graph_max_opt.is_some() || net_graph_is_dynamic)
+                && let Some(graph_ref) = array.get_by_name_mut("net_graph")
+            {
+                graph_ref.update_as_error("Net ERROR".to_owned());
             }
 
             let down_ref_opt = array.get_by_name_mut("net_down");
@@ -234,7 +227,7 @@ fn main() {
     let handle_net = |is_empty: bool,
                       net: &mut proc::NetInfo,
                       array: &mut SwaybarArray|
-     -> Result<(), proc::Error> {
+     -> Result<(), Error> {
         let mut update_result = net.update();
         // Attempt to re-check all net-devices on error.
         if update_result.is_err() {
@@ -318,54 +311,50 @@ fn main() {
                 array.push_object(up_object);
             }
         } else {
-            if net_graph_is_dynamic && net_graph_show_dynamic_max {
-                if let Some(graph_obj) = array.get_by_name_mut("net_graph_dyn_max") {
-                    graph_obj.full_text = history_max;
-                    if (net_graph_max.is_some() || net_graph_is_dynamic) && !graph_items.is_empty()
-                    {
-                        match graph_items[max_idx].get_value_type() {
-                            proc::GraphItemType::Download => {
-                                graph_obj.color = Some("#ff8888ff".into())
-                            }
-                            proc::GraphItemType::Upload => {
-                                graph_obj.color = Some("#88ff88ff".into())
-                            }
-                            proc::GraphItemType::Both => graph_obj.color = Some("#ffff88ff".into()),
-                        }
+            if net_graph_is_dynamic
+                && net_graph_show_dynamic_max
+                && let Some(graph_obj) = array.get_by_name_mut("net_graph_dyn_max")
+            {
+                graph_obj.full_text = history_max;
+                if (net_graph_max.is_some() || net_graph_is_dynamic) && !graph_items.is_empty() {
+                    match graph_items[max_idx].get_value_type() {
+                        proc::GraphItemType::Download => graph_obj.color = Some("#ff8888ff".into()),
+                        proc::GraphItemType::Upload => graph_obj.color = Some("#88ff88ff".into()),
+                        proc::GraphItemType::Both => graph_obj.color = Some("#ffff88ff".into()),
                     }
                 }
             }
 
-            if net_graph_max.is_some() || net_graph_is_dynamic {
-                if let Some(graph_obj) = array.get_by_name_mut("net_graph") {
-                    let mut text = String::new();
-                    for item in graph_items.iter() {
-                        match item.get_value_type() {
-                            proc::GraphItemType::Download => {
-                                write!(
-                                    &mut text,
-                                    "<span color=\"#ff8888ff\">{}</span>",
-                                    item.get_value()
-                                )?;
-                            }
-                            proc::GraphItemType::Upload => {
-                                write!(
-                                    &mut text,
-                                    "<span color=\"#88ff88ff\">{}</span>",
-                                    item.get_value()
-                                )?;
-                            }
-                            proc::GraphItemType::Both => {
-                                write!(
-                                    &mut text,
-                                    "<span color=\"#ffff88ff\">{}</span>",
-                                    item.get_value()
-                                )?;
-                            }
+            if (net_graph_max.is_some() || net_graph_is_dynamic)
+                && let Some(graph_obj) = array.get_by_name_mut("net_graph")
+            {
+                let mut text = String::new();
+                for item in graph_items.iter() {
+                    match item.get_value_type() {
+                        proc::GraphItemType::Download => {
+                            write!(
+                                &mut text,
+                                "<span color=\"#ff8888ff\">{}</span>",
+                                item.get_value()
+                            )?;
+                        }
+                        proc::GraphItemType::Upload => {
+                            write!(
+                                &mut text,
+                                "<span color=\"#88ff88ff\">{}</span>",
+                                item.get_value()
+                            )?;
+                        }
+                        proc::GraphItemType::Both => {
+                            write!(
+                                &mut text,
+                                "<span color=\"#ffff88ff\">{}</span>",
+                                item.get_value()
+                            )?;
                         }
                     }
-                    graph_obj.full_text = text;
                 }
+                graph_obj.full_text = text;
             }
 
             if let Some(down_object) = array.get_by_name_mut("net_down") {
@@ -391,14 +380,14 @@ fn main() {
     signal_handling::handle_signal(libc::SIGHUP, handle_signal);
     signal_handling::handle_signal(libc::SIGTERM, handle_signal);
 
-    while IS_RUNNING.load(std::sync::atomic::Ordering::SeqCst) {
+    while IS_RUNNING.load(std::sync::atomic::Ordering::Acquire) {
         let is_empty = array.is_empty();
 
         // network traffic
         if let Some(net) = net_obj.as_mut() {
             if let Err(e) = handle_net(is_empty, net, &mut array) {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                stderr_handle.write_all(format!("{}\n", e).as_bytes())?;
                 net_obj = None;
                 set_net_error(is_empty, &mut array, &net_graph_max);
             } else if net.get_fresh() {
@@ -413,7 +402,7 @@ fn main() {
             let meminfo_result = proc::get_meminfo();
             let meminfo_string: String = if let Err(e) = meminfo_result {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                stderr_handle.write_all(format!("{}\n", e).as_bytes())?;
                 String::from("MEMINFO ERROR")
             } else {
                 meminfo_result.unwrap()
@@ -445,7 +434,7 @@ fn main() {
                     }
                 } else if let Err(e) = cmd_result {
                     let mut stderr_handle = io::stderr().lock();
-                    stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                    stderr_handle.write_all(format!("{}\n", e).as_bytes())?;
                     if is_empty {
                         let cmd_obj = SwaybarObject::from_error_string(
                             format!("regex_cmd_{}", idx),
@@ -471,19 +460,19 @@ fn main() {
                     array.push_object(new_object);
                     batt_info_error = true;
                     let mut stderr_handle = io::stderr().lock();
-                    stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                    stderr_handle.write_all(format!("{}\n", e).as_bytes())?;
                 } else {
                     array.push_object(new_object);
                 }
-            } else if let Some(obj) = array.get_by_name_mut("battinfo") {
-                if !batt_info_error {
-                    let result = batt_info.update(obj);
-                    if let Err(e) = result {
-                        obj.update_as_error("BATTINFO ERROR".to_owned());
-                        batt_info_error = true;
-                        let mut stderr_handle = io::stderr().lock();
-                        stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
-                    }
+            } else if let Some(obj) = array.get_by_name_mut("battinfo")
+                && !batt_info_error
+            {
+                let result = batt_info.update(obj);
+                if let Err(e) = result {
+                    obj.update_as_error("BATTINFO ERROR".to_owned());
+                    batt_info_error = true;
+                    let mut stderr_handle = io::stderr().lock();
+                    stderr_handle.write_all(format!("{}\n", e).as_bytes())?;
                 }
             }
         }
@@ -493,7 +482,7 @@ fn main() {
             let loadavg_result = proc::get_loadavg();
             let loadavg_string: String = if let Err(e) = loadavg_result {
                 let mut stderr_handle = io::stderr().lock();
-                stderr_handle.write_all(format!("{}\n", e).as_bytes()).ok();
+                stderr_handle.write_all(format!("{}\n", e).as_bytes())?;
                 String::from("LOADAVG ERROR")
             } else {
                 loadavg_result.unwrap()
@@ -518,4 +507,6 @@ fn main() {
         println!("{}", array);
         thread::park_timeout(interval);
     }
+
+    Ok(())
 }

@@ -3,33 +3,33 @@ use std::io;
 use std::io::Write;
 
 #[derive(Clone)]
-pub struct ArgsResult {
+pub struct Args {
     pub map: HashMap<String, String>,
     pub regex_cmds: Vec<String>,
     pub net_devices: Vec<String>,
     pub whitelist_exact: HashSet<String>,
-    pub whitelist_contains: HashSet<String>,
-    pub whitelist_begins: HashSet<String>,
-    pub whitelist_ends: HashSet<String>,
+    pub whitelist_contains: Vec<String>,
+    pub whitelist_begins: Vec<String>,
+    pub whitelist_ends: Vec<String>,
     pub blacklist_exact: HashSet<String>,
-    pub blacklist_contains: HashSet<String>,
-    pub blacklist_begins: HashSet<String>,
-    pub blacklist_ends: HashSet<String>,
+    pub blacklist_contains: Vec<String>,
+    pub blacklist_begins: Vec<String>,
+    pub blacklist_ends: Vec<String>,
 }
 
-pub fn get_args() -> ArgsResult {
+pub fn get_args() -> Args {
     let mut map = HashMap::new();
     let mut regex_cmds = Vec::new();
     let mut net_devices = Vec::new();
 
     let mut w_exact: HashSet<String> = HashSet::new();
-    let mut w_contains: HashSet<String> = HashSet::new();
-    let mut w_begins: HashSet<String> = HashSet::new();
-    let mut w_ends: HashSet<String> = HashSet::new();
+    let mut w_contains: Vec<String> = Vec::new();
+    let mut w_begins: Vec<String> = Vec::new();
+    let mut w_ends: Vec<String> = Vec::new();
     let mut b_exact: HashSet<String> = HashSet::new();
-    let mut b_contains: HashSet<String> = HashSet::new();
-    let mut b_begins: HashSet<String> = HashSet::new();
-    let mut b_ends: HashSet<String> = HashSet::new();
+    let mut b_contains: Vec<String> = Vec::new();
+    let mut b_begins: Vec<String> = Vec::new();
+    let mut b_ends: Vec<String> = Vec::new();
 
     // Ensure the loopback net device is ignored.
     b_exact.insert("lo".to_owned());
@@ -76,25 +76,25 @@ pub fn get_args() -> ArgsResult {
             w_exact.insert(back.to_owned());
         } else if arg.starts_with("--whitelist-contains=") {
             let (_, back) = arg.split_at(21);
-            w_contains.insert(back.to_owned());
+            w_contains.push(back.to_owned());
         } else if arg.starts_with("--whitelist-begins=") {
             let (_, back) = arg.split_at(19);
-            w_begins.insert(back.to_owned());
+            w_begins.push(back.to_owned());
         } else if arg.starts_with("--whitelist-ends=") {
             let (_, back) = arg.split_at(17);
-            w_ends.insert(back.to_owned());
+            w_ends.push(back.to_owned());
         } else if arg.starts_with("--blacklist-exact=") {
             let (_, back) = arg.split_at(18);
             b_exact.insert(back.to_owned());
         } else if arg.starts_with("--blacklist-contains=") {
             let (_, back) = arg.split_at(21);
-            b_contains.insert(back.to_owned());
+            b_contains.push(back.to_owned());
         } else if arg.starts_with("--blacklist-begins=") {
             let (_, back) = arg.split_at(19);
-            b_begins.insert(back.to_owned());
+            b_begins.push(back.to_owned());
         } else if arg.starts_with("--blacklist-ends=") {
             let (_, back) = arg.split_at(17);
-            b_ends.insert(back.to_owned());
+            b_ends.push(back.to_owned());
         } else if arg == "--help" || arg == "-h" {
             map.insert("help".into(), "".into());
         } else {
@@ -105,7 +105,7 @@ pub fn get_args() -> ArgsResult {
         }
     }
 
-    ArgsResult {
+    Args {
         map,
         regex_cmds,
         net_devices,
