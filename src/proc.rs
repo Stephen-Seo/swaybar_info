@@ -1,8 +1,8 @@
 use crate::args::ArgsResult;
 use std::fmt::Write as FMTWrite;
 use std::fs::File;
-use std::io::prelude::*;
 use std::io::Write as IOWrite;
+use std::io::prelude::*;
 
 const MAX_NET_FRESH_COUNT: u32 = 2;
 

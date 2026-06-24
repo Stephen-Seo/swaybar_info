@@ -87,7 +87,7 @@ pub fn get_cmd_output(
         4.. => {
             return Err(Error::from(
                 "Too many captures in regex, up to 2 is allowed".to_owned(),
-            ))
+            ));
         }
         _ => (),
     }
