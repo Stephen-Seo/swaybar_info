@@ -1,4 +1,4 @@
-use crate::args::ArgsResult;
+use crate::args::Args;
 use std::fmt::Write as FMTWrite;
 use std::fs::File;
 use std::io::Write as IOWrite;
@@ -102,11 +102,11 @@ pub struct NetInfo<'a> {
     first_iteration: bool,
     pub errored: bool,
     fresh_count: u32,
-    args: &'a ArgsResult,
+    args: &'a Args,
 }
 
 impl<'a> NetInfo<'a> {
-    pub fn new(dev_name: String, graph_size_opt: Option<usize>, args: &'a ArgsResult) -> Self {
+    pub fn new(dev_name: String, graph_size_opt: Option<usize>, args: &'a Args) -> Self {
         let mut s = Self {
             dev_name,
             graph: vec![GraphItem {

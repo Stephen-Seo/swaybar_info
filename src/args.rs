@@ -3,7 +3,7 @@ use std::io;
 use std::io::Write;
 
 #[derive(Clone)]
-pub struct ArgsResult {
+pub struct Args {
     pub map: HashMap<String, String>,
     pub regex_cmds: Vec<String>,
     pub net_devices: Vec<String>,
@@ -17,7 +17,7 @@ pub struct ArgsResult {
     pub blacklist_ends: HashSet<String>,
 }
 
-pub fn get_args() -> ArgsResult {
+pub fn get_args() -> Args {
     let mut map = HashMap::new();
     let mut regex_cmds = Vec::new();
     let mut net_devices = Vec::new();
@@ -105,7 +105,7 @@ pub fn get_args() -> ArgsResult {
         }
     }
 
-    ArgsResult {
+    Args {
         map,
         regex_cmds,
         net_devices,
