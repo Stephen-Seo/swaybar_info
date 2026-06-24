@@ -1,7 +1,7 @@
 [package]
 name = "swaybar_info"
 version = "0.2.2"
-edition = "2021"
+edition = "2024"
 description = "Provides swaybar with info to be displayed"
 license = "MIT"
 repository = "https://github.com/Stephen-Seo/swaybar_info"
