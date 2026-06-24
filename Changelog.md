@@ -2,6 +2,21 @@
 
 ## Upcoming Changes
 
+## Version 0.3.0
+
+Change Rust edition to "2024" in Cargo.toml and do some clippy-related fixes.
+
+Rename `args::ArgsResult` to `args::Args`.
+
+Refactor white/black-lists to use `Vec` when appropriate.
+
+Use `Acquire` or `Release` instead of `SeqCst` when handling atmoic bool set by
+signal.
+
+Unfiy all `enum Error` declarations into a single `error` module.
+
+The `main()` function now returns a `Result<(), Error>`.
+
 ## Version 0.2.2
 
 Internal refactoring related to net-dev handling (should be more efficient).
