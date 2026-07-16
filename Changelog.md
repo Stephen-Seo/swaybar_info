@@ -2,6 +2,12 @@
 
 ## Upcoming Changes
 
+## Version 0.3.1
+
+Update dep regex: 1.12 -> 1.13
+
+Update deps with `cargo update`.
+
 ## Version 0.3.0
 
 Change Rust edition to "2024" in Cargo.toml and do some clippy-related fixes.
