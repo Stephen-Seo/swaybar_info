@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+## Version 0.3.1
+
 Update dep regex: 1.12 -> 1.13
 
 Update deps with `cargo update`.
