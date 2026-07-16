@@ -19,6 +19,14 @@ tiling Wayland compositor](https://swaywm.org).
     Usage:
       -h | --help                                      Prints help
       --netdev=<device_name>[,<device_name>...]        Check network traffic on specified device(s)
+      --whitelist-exact=<str>                          When netdev is "all", whitelist netdevs to exact entries
+      --whitelist-contains=<str>                       When netdev is "all", whitelist netdevs to entries that contains <str>
+      --whitelist-begins=<str>                         When netdev is "all", whitelist netdevs to entries that begins with <str>
+      --whitelist-ends=<str>                           When netdev is "all", whitelist netdevs to entries that ends with <str>
+      --blacklist-exact=<str>                          When netdev is "all", blacklist netdevs to exact entries
+      --blacklist-contains=<str>                       When netdev is "all", blacklist netdevs to entries that contains <str>
+      --blacklist-begins=<str>                         When netdev is "all", blacklist netdevs to entries that begins with <str>
+      --blacklist-ends=<str>                           When netdev is "all", blacklist netdevs to entries that ends with <str>
       --netdev_width=<width>                           Sets the min-width of the netdev output (default 11)
       --netgraph_max_bytes=<bytes>                     Enable "graph" output when polling network traffic
                                                          (Set to "dynamic" instead of a byte count for dynamic sizing)
