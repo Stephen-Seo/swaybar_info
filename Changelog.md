@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+## Version 0.3.2
+
 Update deps with `cargo update`.
 
 ## Version 0.3.1
