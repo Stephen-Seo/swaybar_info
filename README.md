@@ -150,5 +150,5 @@ using `--netgraph_size=<size>`.
 
 Uses [`serde_json`](https://crates.io/crates/serde_json),
 [`serde`](https://crates.io/crates/serde),
-[`chrono`](https://crates.io/crates/chrono),
+[`time`](https://crates.io/crates/time),
 and [`regex`](https://crates.io/crates/regex).
