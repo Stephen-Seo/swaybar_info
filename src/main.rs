@@ -7,6 +7,7 @@ mod signal_handling;
 mod swaybar_object;
 
 use error::Error;
+use time::format_description::{OwnedFormatItem, parse_strftime_owned};
 
 use std::ffi::c_int;
 use std::fmt::Write as FMTWrite;
@@ -167,6 +168,8 @@ fn main() -> Result<(), Error> {
     if let Some(s) = args_result.map.get("time-format") {
         time_fmt_str = s;
     }
+
+    let time_formatter: Option<OwnedFormatItem> = parse_strftime_owned(time_fmt_str).ok();
 
     println!(
         "{}",
@@ -498,10 +501,10 @@ fn main() -> Result<(), Error> {
         // time
         if is_empty {
             let mut time_obj = SwaybarObject::new("current_time".to_owned());
-            time_obj.update_as_date(time_fmt_str);
+            time_obj.update_as_date(&time_formatter);
             array.push_object(time_obj);
         } else if let Some(time_obj) = array.get_by_name_mut("current_time") {
-            time_obj.update_as_date(time_fmt_str);
+            time_obj.update_as_date(&time_formatter);
         }
 
         println!("{}", array);

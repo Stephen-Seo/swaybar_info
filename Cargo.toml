@@ -11,6 +11,6 @@ repository = "https://github.com/Stephen-Seo/swaybar_info"
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-chrono = "0.4"
+time = { version = "0.3", features = ["formatting", "local-offset"] }
 regex = "1.13"
 libc = "0.2"

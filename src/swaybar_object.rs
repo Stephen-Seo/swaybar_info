@@ -5,7 +5,6 @@ use std::{
     ops::{Index, IndexMut},
 };
 
-use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -151,10 +150,16 @@ impl SwaybarObject {
         self.color = Some("#88ff88ff".to_owned());
     }
 
-    pub fn update_as_date(&mut self, format_str: &str) {
-        let current_time: DateTime<Local> = Local::now();
-        let current_time = current_time.format(format_str);
-        self.full_text = current_time.to_string();
+    pub fn update_as_date(&mut self, format: &Option<time::format_description::OwnedFormatItem>) {
+        let current_time: time::OffsetDateTime =
+            time::OffsetDateTime::now_local().unwrap_or(time::OffsetDateTime::now_utc());
+        if let Some(format) = format
+            && let Ok(time_text) = current_time.format(format)
+        {
+            self.full_text = time_text;
+        } else {
+            self.full_text = "Error Getting Time!".into();
+        }
         self.color = None;
     }
 
