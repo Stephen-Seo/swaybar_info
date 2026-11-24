@@ -2,6 +2,10 @@
 
 ## Upcoming Changes
 
+Remove deprecated crate `chrono` and replace it with `time` crate.
+
+Update deps with `cargo update`.
+
 ## Version 0.3.5
 
 Update deps with `cargo update`.
