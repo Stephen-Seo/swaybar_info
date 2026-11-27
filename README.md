@@ -18,6 +18,7 @@ tiling Wayland compositor](https://swaywm.org).
 
     Usage:
       -h | --help                                      Prints help
+      --version                                        Prints the current version
       --netdev=<device_name>[,<device_name>...]        Check network traffic on specified device(s)
       --whitelist-exact=<str>                          When netdev is "all", whitelist netdevs to exact entries
       --whitelist-contains=<str>                       When netdev is "all", whitelist netdevs to entries that contains <str>

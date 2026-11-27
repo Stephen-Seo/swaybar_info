@@ -11,7 +11,9 @@ use time::format_description::{OwnedFormatItem, parse_strftime_owned};
 
 use std::ffi::c_int;
 use std::fmt::Write as FMTWrite;
-use std::io::{self, Write};
+use std::fs::File;
+use std::io::{self, Read, Write};
+use std::path::PathBuf;
 use std::sync::RwLock;
 use std::sync::atomic::AtomicBool;
 use std::thread::{self, Thread};
@@ -37,6 +39,29 @@ fn main() -> Result<(), Error> {
     let args_result = args::get_args();
     if args_result.map.contains_key("help") {
         args::print_usage();
+        return Ok(());
+    } else if args_result.map.contains_key("version") {
+        let mut version_text: PathBuf = PathBuf::from(env!("OUT_DIR"));
+        version_text = version_text.join("version.txt");
+        let mut version_text_file =
+            File::open(version_text).expect("Should be able to open OUT_DIR/version.txt");
+        let mut version = String::new();
+        version_text_file
+            .read_to_string(&mut version)
+            .expect("Should be able to read OUT_DIR/version.txt");
+        println!("version {}", version);
+
+        let mut git_version_text: PathBuf = PathBuf::from(env!("OUT_DIR"));
+        git_version_text = git_version_text.join("git_version.txt");
+        let git_version_text_file = File::open(git_version_text);
+        if let Ok(mut git_version_text_file) = git_version_text_file {
+            let mut git_version = String::new();
+            let ret = git_version_text_file.read_to_string(&mut git_version);
+            if ret.is_ok() {
+                println!("git-version {}", git_version);
+            }
+        }
+
         return Ok(());
     }
 
@@ -170,6 +195,11 @@ fn main() -> Result<(), Error> {
     }
 
     let time_formatter: Option<OwnedFormatItem> = parse_strftime_owned(time_fmt_str).ok();
+    if time_formatter.is_none() {
+        eprintln!(
+            "WARNING: swaybar_info Failed to parse time format string, time output will fail!"
+        );
+    }
 
     println!(
         "{}",

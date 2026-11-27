@@ -34,11 +34,9 @@ pub fn get_args() -> Args {
     // Ensure the loopback net device is ignored.
     b_exact.insert("lo".to_owned());
 
-    let mut first = true;
-    for arg in std::env::args() {
-        if first {
-            first = false;
-            continue;
+    for arg in std::env::args().skip(1) {
+        if arg == "--version" {
+            map.insert("version".into(), "".into());
         } else if arg.starts_with("--netdev=") {
             let (_, back) = arg.split_at(9);
             if back.contains(',') {
@@ -125,6 +123,11 @@ pub fn print_usage() {
     stderr_handle.write_all(b"Usage:\n").ok();
     stderr_handle
         .write_all(b"  -h | --help                                      Prints help\n")
+        .ok();
+    stderr_handle
+        .write_all(
+            b"  --version                                        Prints the current version\n",
+        )
         .ok();
     stderr_handle
         .write_all(b"  --netdev=<device_name>[,<device_name>...]        Check network traffic on specified device(s)\n")
