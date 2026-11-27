@@ -148,7 +148,7 @@ dependencies = [
 
 [[package]]
 name = "swaybar_info"
-version = "0.3.6"
+version = "0.4.0"
 dependencies = [
  "libc",
  "regex",

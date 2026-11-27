@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+## Version 0.4.0
+
 Emit warning if time format string is invalid. Note that the time format string
 is based on `strftime`.
 
