@@ -170,6 +170,11 @@ fn main() -> Result<(), Error> {
     }
 
     let time_formatter: Option<OwnedFormatItem> = parse_strftime_owned(time_fmt_str).ok();
+    if time_formatter.is_none() {
+        eprintln!(
+            "WARNING: swaybar_info Failed to parse time format string, time output will fail!"
+        );
+    }
 
     println!(
         "{}",
