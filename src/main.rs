@@ -43,7 +43,9 @@ fn main() -> Result<(), Error> {
         println!("version {}", version);
 
         let git_version = include_str!(concat!(env!("OUT_DIR"), "/git_version.txt"));
-        println!("git-version {}", git_version);
+        if git_version != "(no version)" {
+            println!("git-version {}", git_version);
+        }
 
         return Ok(());
     }
