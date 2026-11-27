@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+## Version 0.4.1
+
 Fix `--version`.
 
 ## Version 0.4.0
