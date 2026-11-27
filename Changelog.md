@@ -5,6 +5,8 @@
 Emit warning if time format string is invalid. Note that the time format string
 is based on `strftime`.
 
+Add arg `--version` which shows the current version of `swaybar_info`.
+
 ## Version 0.3.6
 
 Remove deprecated crate `chrono` and replace it with `time` crate.
