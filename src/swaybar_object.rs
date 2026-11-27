@@ -153,12 +153,14 @@ impl SwaybarObject {
     pub fn update_as_date(&mut self, format: &Option<time::format_description::OwnedFormatItem>) {
         let current_time: time::OffsetDateTime =
             time::OffsetDateTime::now_local().unwrap_or(time::OffsetDateTime::now_utc());
-        if let Some(format) = format
-            && let Ok(time_text) = current_time.format(format)
-        {
-            self.full_text = time_text;
+        if let Some(format) = format {
+            if let Ok(time_text) = current_time.format(format) {
+                self.full_text = time_text;
+            } else {
+                self.full_text = "Error Getting Time!".into();
+            }
         } else {
-            self.full_text = "Error Getting Time!".into();
+            self.full_text = "Invalid \"strftime\" Format!".into();
         }
         self.color = None;
     }
