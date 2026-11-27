@@ -24,5 +24,10 @@ fn main() {
                 .ok();
             println!("cargo::rerun-if-changed={cargo_manifest_dir}/.git");
         }
+    } else {
+        let git_version_file_res = File::create(git_version_path);
+        if let Ok(mut git_version_file) = git_version_file_res {
+            git_version_file.write_all(b"(no version)").ok();
+        }
     }
 }

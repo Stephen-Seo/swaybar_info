@@ -11,9 +11,7 @@ use time::format_description::{OwnedFormatItem, parse_strftime_owned};
 
 use std::ffi::c_int;
 use std::fmt::Write as FMTWrite;
-use std::fs::File;
-use std::io::{self, Read, Write};
-use std::path::PathBuf;
+use std::io::{self, Write};
 use std::sync::RwLock;
 use std::sync::atomic::AtomicBool;
 use std::thread::{self, Thread};
@@ -41,26 +39,11 @@ fn main() -> Result<(), Error> {
         args::print_usage();
         return Ok(());
     } else if args_result.map.contains_key("version") {
-        let mut version_text: PathBuf = PathBuf::from(env!("OUT_DIR"));
-        version_text = version_text.join("version.txt");
-        let mut version_text_file =
-            File::open(version_text).expect("Should be able to open OUT_DIR/version.txt");
-        let mut version = String::new();
-        version_text_file
-            .read_to_string(&mut version)
-            .expect("Should be able to read OUT_DIR/version.txt");
+        let version = include_str!(concat!(env!("OUT_DIR"), "/version.txt"));
         println!("version {}", version);
 
-        let mut git_version_text: PathBuf = PathBuf::from(env!("OUT_DIR"));
-        git_version_text = git_version_text.join("git_version.txt");
-        let git_version_text_file = File::open(git_version_text);
-        if let Ok(mut git_version_text_file) = git_version_text_file {
-            let mut git_version = String::new();
-            let ret = git_version_text_file.read_to_string(&mut git_version);
-            if ret.is_ok() {
-                println!("git-version {}", git_version);
-            }
-        }
+        let git_version = include_str!(concat!(env!("OUT_DIR"), "/git_version.txt"));
+        println!("git-version {}", git_version);
 
         return Ok(());
     }
