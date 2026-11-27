@@ -2,6 +2,9 @@
 
 ## Upcoming Changes
 
+Emit warning if time format string is invalid. Note that the time format string
+is based on `strftime`.
+
 ## Version 0.3.6
 
 Remove deprecated crate `chrono` and replace it with `time` crate.
