@@ -2,6 +2,8 @@
 
 ## Upcoming Changes
 
+Fix `--version` on case where `git describe ...` fails.
+
 ## Version 0.4.1
 
 Fix `--version`.
