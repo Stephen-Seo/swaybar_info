@@ -16,7 +16,9 @@ fn main() {
         .args(["describe", "--tags", "--long"])
         .output();
 
-    if let Ok(git_cmd_out) = git_cmd_out_res {
+    if let Ok(git_cmd_out) = git_cmd_out_res
+        && git_cmd_out.status.success()
+    {
         let git_version_file_res = File::create(git_version_path);
         if let Ok(mut git_version_file) = git_version_file_res {
             git_version_file
